@@ -1,11 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using DavidFDev.DevConsole;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using FishNet.Transporting;
-using UnityEngine;
 using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.Network
@@ -18,7 +13,7 @@ namespace SEEP.Network
             OnChange = nameof(OnChangeNickname), Channel = Channel.Reliable)]
         private string _nickname;
 
-        private bool _isInitialized = false;
+        private bool _isInitialized;
         #endregion
 
         #region PUBLIC VARIABLES

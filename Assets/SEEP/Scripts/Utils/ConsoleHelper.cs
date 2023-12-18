@@ -23,7 +23,7 @@ namespace SEEP.Utils
                 helpText: "Display list of players",
                 callback: () =>
                 {
-                    var clients = Utils.InstanceFinder.LobbyManager.Clients;
+                    var clients = InstanceFinder.LobbyManager.Clients;
                     if (clients.Count <= 0)
                     {
                         DevConsole.LogError("Clients doesn't found. It a bug :(");

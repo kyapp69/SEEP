@@ -22,12 +22,12 @@ namespace SEEP.Network
         /// <summary>
         /// Array of cached clients. Caching on clients
         /// </summary>
-        [SerializeField] private ClientController[] _cachedClients;
+        private ClientController[] _cachedClients;
 
         /// <summary>
         /// Required on client side. Prevents from multiple registration
         /// </summary>
-        private bool _isInitialized = false;
+        private bool _isInitialized;
 
         #endregion
 
