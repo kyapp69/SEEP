@@ -10,11 +10,14 @@ namespace SEEP.VehicleController
     {
         private PlayerInput _input;
         private InputActionMap _defaultMap;
-        private InputAction _throttleAction;
-        private InputAction _steeringAction;
+        private InputAction _controlAction;
+        private InputAction _jumpAction;
 
-        private float _throttle;
-        private float _steering;
+        private Vector2 _control;
+        private bool _jump;
+
+        public Vector2 Control => _control;
+        public bool Jump => _jump;
 
         private void Start()
         {
@@ -28,23 +31,23 @@ namespace SEEP.VehicleController
             }
 
             _defaultMap = _input.currentActionMap;
-            _throttleAction = _defaultMap.FindAction("Throttle");
-            _steeringAction = _defaultMap.FindAction("Steering");
-
-            _throttleAction.performed += ThrottleAction;
-            _throttleAction.canceled += ThrottleAction;
-            _steeringAction.performed += SteeringAction;
-            _steeringAction.canceled += SteeringAction;
+            _controlAction = _defaultMap.FindAction("Control");
+            _jumpAction = _defaultMap.FindAction("Jump");
+            
+            _controlAction.performed += ControlAction;
+            _controlAction.canceled += ControlAction;
+            _jumpAction.performed += JumpAction;
+            _jumpAction.canceled += JumpAction;
         }
 
-        private void ThrottleAction(InputAction.CallbackContext obj)
+        private void JumpAction(InputAction.CallbackContext obj)
         {
-            _throttle = obj.ReadValue<float>();
+            _jump = obj.ReadValueAsButton();
         }
 
-        private void SteeringAction(InputAction.CallbackContext obj)
+        private void ControlAction(InputAction.CallbackContext obj)
         {
-            _steering = obj.ReadValue<float>();
+            _control = obj.ReadValue<Vector2>();
         }
     }
 }

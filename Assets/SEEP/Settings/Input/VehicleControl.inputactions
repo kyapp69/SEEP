@@ -6,90 +6,156 @@
             "id": "1be3187a-52ff-4e06-8ef5-e7974e3cf68a",
             "actions": [
                 {
-                    "name": "Throttle",
+                    "name": "Control",
                     "type": "Value",
-                    "id": "0c78bfdc-4426-4351-98b5-612d2d146696",
-                    "expectedControlType": "Axis",
+                    "id": "d89d9f4d-6d20-4b8b-a80d-ca9ace2524fd",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Steering",
-                    "type": "Value",
-                    "id": "11754fad-f3a9-4cb0-90d0-dc5c531ce69f",
-                    "expectedControlType": "Axis",
+                    "name": "Jump",
+                    "type": "Button",
+                    "id": "70e357a8-edf0-4dba-a287-2aef50404027",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
                 {
-                    "name": "1D Axis",
-                    "id": "13274e16-9aea-423d-815c-88a58bb00648",
-                    "path": "1DAxis",
+                    "name": "2D Vector",
+                    "id": "44916485-4a3e-4294-8e48-342018498790",
+                    "path": "2DVector",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Throttle",
+                    "action": "Control",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "negative",
-                    "id": "a10e9d6d-bdae-4f91-a2c7-da3cf7228f20",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Throttle",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "positive",
-                    "id": "6029bec5-fa13-4ec6-9854-bb274ffbc371",
+                    "name": "up",
+                    "id": "4281273e-d996-4188-9fe3-5a086bb50448",
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Throttle",
+                    "action": "Control",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "1D Axis",
-                    "id": "a364ea72-26e3-4d98-9003-5f42616d8456",
-                    "path": "1DAxis",
+                    "name": "down",
+                    "id": "9f912096-5490-4f66-aabe-85c061777a78",
+                    "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Steering",
-                    "isComposite": true,
-                    "isPartOfComposite": false
+                    "action": "Control",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 },
                 {
-                    "name": "negative",
-                    "id": "49ad56b0-9bba-428c-b059-1ef5b94c0b87",
+                    "name": "left",
+                    "id": "a8036ba4-1272-46ad-9089-a06c0435fd74",
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Steering",
+                    "action": "Control",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "positive",
-                    "id": "7ee0ed83-4e9d-4a78-8da9-1d7b53432e3a",
+                    "name": "right",
+                    "id": "45182c31-e4be-46d9-b121-793b1cc33227",
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Steering",
+                    "action": "Control",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "2D Vector",
+                    "id": "25488235-3151-4ca8-950a-822a3ee91632",
+                    "path": "2DVector(mode=1)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Control",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "55234aa8-469d-4fc9-bd29-549b36ef6c82",
+                    "path": "<Gamepad>/leftStick/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Control",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "3498f341-0489-4d58-b72f-be035774cc3d",
+                    "path": "<Gamepad>/leftStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Control",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "91171af4-1610-45f6-a52a-5b321cd976e3",
+                    "path": "<Gamepad>/leftStick/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Control",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "581bb82b-a641-4a62-bc02-43a238a36020",
+                    "path": "<Gamepad>/leftStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Control",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "ecea026d-03d6-43a8-a731-d0eea1d90354",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e8c3fea8-7ca5-4c2e-af16-dfaec9efa9fd",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
