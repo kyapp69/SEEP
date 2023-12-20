@@ -4,6 +4,7 @@
 #
 /[Ll]ibrary/
 /.idea/
+/.vscode/
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
@@ -41,6 +42,7 @@ ExportedObj/
 *.user
 *.userprefs
 *.pidb
+*.blob
 *.booproj
 *.svd
 *.pdb
