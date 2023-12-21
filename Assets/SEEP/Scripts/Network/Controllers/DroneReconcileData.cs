@@ -1,18 +1,16 @@
 using FishNet.Object.Prediction;
 using UnityEngine;
 
-namespace SEEP.Network
+namespace SEEP.Network.Controllers
 {
-    public class ReconcileData : IReconcileData
+    public struct DroneReconcileData : IReconcileData
     {
         public Vector3 Position;
-        public Quaternion Rotation;
         public Vector3 Velocity;
         public Vector3 AngularVelocity;
-        public ReconcileData(Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 angularVelocity)
+        public DroneReconcileData(Vector3 position, Vector3 velocity, Vector3 angularVelocity)
         {
             Position = position;
-            Rotation = rotation;
             Velocity = velocity;
             AngularVelocity = angularVelocity;
             _tick = 0;
