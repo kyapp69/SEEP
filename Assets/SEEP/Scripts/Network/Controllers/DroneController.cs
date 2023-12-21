@@ -16,16 +16,28 @@ namespace SEEP.Network.Controllers
         private float jumpForce = 15f;
 
         [Tooltip("Acceleration force in newtons")] [SerializeField]
-        private float accelerationForce = 15f;
+        private float accelerationForce = 70f;
+
+        [Tooltip("Acceleration force in air in newtons")] [SerializeField]
+        private float airAccelerationForce = 15f;
 
         [Tooltip("Max horizontal speed")] [SerializeField]
         private float maxSpeed = 8f;
+
+        [Tooltip("Time in seconds to cooldown jump ability")] [SerializeField]
+        private float jumpCooldown = 1f;
 
         [Tooltip("Time in seconds, to smooth the rotation of the drone")] [SerializeField]
         private float rotationSmoothTime = 0.15f;
 
         [Tooltip("How fast drone should compensate sideways drag (Default = 1f)")] [SerializeField]
         private float sidewaysDragReduceMultiplier = 1f;
+
+        [Tooltip("How far down will it be checked if there is ground under the drone")] [SerializeField]
+        private float distanceToGround = 0.1f;
+
+        [Tooltip("Which layers will be detected as ground")] [SerializeField]
+        private LayerMask groundLayer;
 
         #region PRIVATE
 
@@ -40,6 +52,11 @@ namespace SEEP.Network.Controllers
         private Rigidbody _rigidbody;
 
         /// <summary>
+        /// Attached Collider
+        /// </summary>
+        private Collider _collider;
+
+        /// <summary>
         /// Transformed player movement to Vector3
         /// </summary>
         private Vector3 _movement;
@@ -49,11 +66,6 @@ namespace SEEP.Network.Controllers
         /// and send it to the server when the server tick comes
         /// </summary>
         private bool _jump;
-
-        /// <summary>
-        /// Calculated distance to ground, according to our collider. Needed to checking if we grounded
-        /// </summary>
-        private float _distToGround;
 
         /// <summary>
         /// Smoothed angle to rotate. Something between target angle and current angle.
@@ -73,9 +85,16 @@ namespace SEEP.Network.Controllers
         private float _currentAngleVelocity;
 
         /// <summary>
-        /// Cached MainCamera transfrom
+        /// Cached MainCamera transform
         /// </summary>
         private Transform _mainCameraTransform;
+
+        /// <summary>
+        /// Float required to count jump cooldown. Updated in fixedUpdate
+        /// </summary>
+        private float _jumpTimer;
+
+        private DroneMoveData _lastMoveData;
 
         #endregion
 
@@ -85,7 +104,7 @@ namespace SEEP.Network.Controllers
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody>();
-            _distToGround = GetComponent<CapsuleCollider>().bounds.extents.y;
+            _collider = GetComponent<CapsuleCollider>();
         }
 
         //Update user input
@@ -98,13 +117,22 @@ namespace SEEP.Network.Controllers
             _movement = new Vector3(_input.Control.x, 0, _input.Control.y);
 
             //If player want to jump, check if we can do this, and caching request for next server tick
-            if (!_jump && _input.Jump && IsGrounded())
+            if (!_jump && _input.Jump && _jumpTimer <= 0f && IsGrounded())
+            {
                 _jump = true;
+                _jumpTimer = jumpCooldown;
+            }
         }
 
         //Rotate drone in movement direction
         private void FixedUpdate()
         {
+            if (!IsOwner) return;
+            
+            //Calculate our jumpTimer
+            if (_jumpTimer > 0f)
+                _jumpTimer -= Time.fixedDeltaTime;
+
             //If we dont have any input -> exit
             if (!(_input.Control.magnitude >= 0.1f)) return;
 
@@ -125,16 +153,14 @@ namespace SEEP.Network.Controllers
         #region METHODS
 
         /// <summary>
-        /// Simple method to check if we grounded
+        /// Method to check if we grounded
         /// </summary>
         /// <returns>True if grounded, and false if not</returns>
         private bool IsGrounded()
         {
-            //Create ray with down direction
-            var ray = new Ray(transform.position, -Vector3.up);
-
-            //Check if something exists under drone
-            return Physics.Raycast(ray, _distToGround + 0.1f);
+            var boxCastSize = new Vector3(_collider.bounds.size.x, distanceToGround, _collider.bounds.size.z);
+            return Physics.BoxCast(_collider.bounds.center, boxCastSize / 2, Vector3.down, out _,
+                Quaternion.identity, _collider.bounds.extents.y + distanceToGround, groundLayer);
         }
 
         /// <summary>
@@ -144,7 +170,7 @@ namespace SEEP.Network.Controllers
         private DroneMoveData BuildMoveData()
         {
             //Work only owner of object
-            if (!base.IsOwner)
+            if (!IsOwner)
                 return default;
 
             //Our DroneMoveData require only direction in which player want to move
@@ -152,7 +178,7 @@ namespace SEEP.Network.Controllers
             //it doesn't matter how much we deflect the stick,
             //the drone will still start moving with maximum acceleration
             //TODO: Rework move data. Need to add acceleration force support
-            var md = new DroneMoveData(_targetAngle, _movement.magnitude >= 0.1f, _jump);
+            var md = new DroneMoveData(_targetAngle, _movement.magnitude >= 0.1f, _jump, transform.rotation);
 
             return md;
         }
@@ -196,8 +222,8 @@ namespace SEEP.Network.Controllers
             _mainCameraTransform = Camera.main?.transform;
 
             //Subscribing on server tick events
-            base.TimeManager.OnTick += TimeManager_OnTick;
-            base.TimeManager.OnPostTick += TimeManager_OnPostTick;
+            TimeManager.OnTick += TimeManager_OnTick;
+            TimeManager.OnPostTick += TimeManager_OnPostTick;
         }
 
         //Called only on client, when disconnect from server
@@ -206,8 +232,8 @@ namespace SEEP.Network.Controllers
             base.OnStopNetwork();
 
             //Desubscribing from server tick events
-            base.TimeManager.OnTick -= TimeManager_OnTick;
-            base.TimeManager.OnPostTick -= TimeManager_OnPostTick;
+            TimeManager.OnTick -= TimeManager_OnTick;
+            TimeManager.OnPostTick -= TimeManager_OnPostTick;
         }
 
         /// <summary>
@@ -220,6 +246,22 @@ namespace SEEP.Network.Controllers
         private void Move(DroneMoveData md, ReplicateState state = ReplicateState.Invalid,
             Channel channel = Channel.Unreliable)
         {
+            
+            if (!IsOwner)
+            {
+                transform.rotation = md.Rotation;
+                if (state is ReplicateState.ReplayedPredicted or ReplicateState.Predicted)
+                {
+                    uint tick = md.GetTick();
+                    md = _lastMoveData;
+                    md.SetTick(tick);
+                }
+                else
+                {
+                    _lastMoveData = md;
+                }
+            }
+            
             //If we has a input and we grounded - apply our movement forces
             if (md.IsMoving && IsGrounded())
             {
@@ -227,7 +269,22 @@ namespace SEEP.Network.Controllers
                 var rotatedMovement = Quaternion.Euler(0, md.TargetAngle, 0) * Vector3.forward;
 
                 //And apply him
-                _rigidbody.AddForce(rotatedMovement * (accelerationForce), ForceMode.Force);
+                _rigidbody.AddForce(rotatedMovement * accelerationForce, ForceMode.Force);
+
+                //Get velocity of sideways drag
+                var velocity = transform.InverseTransformDirection(_rigidbody.velocity);
+
+                //Apply inverted force of sideways drag according to multiplier
+                _rigidbody.AddForce(transform.right * (-velocity.x * sidewaysDragReduceMultiplier));
+            }
+            //If we have input and we an air
+            else if (md.IsMoving)
+            {
+                //Calculate assigned vector to our smoothed angle
+                var rotatedMovement = Quaternion.Euler(0, md.TargetAngle, 0) * Vector3.forward;
+
+                //And apply him with air movement force
+                _rigidbody.AddForce(rotatedMovement * airAccelerationForce, ForceMode.Force);
 
                 //Get velocity of sideways drag
                 var velocity = transform.InverseTransformDirection(_rigidbody.velocity);
@@ -237,7 +294,7 @@ namespace SEEP.Network.Controllers
             }
 
             //If jump requested
-            if (_jump)
+            if (md.Jump)
             {
                 _rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
                 _jump = false;

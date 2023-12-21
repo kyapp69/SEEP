@@ -1,12 +1,19 @@
+using System.Linq;
+using Cinemachine;
+using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using FishNet.Transporting;
+using SEEP.Network.Controllers;
+using UnityEngine;
 using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.Network
 {
     public class ClientController : NetworkBehaviour
     {
+        [SerializeField] private GameObject dronePrefab;
+
         #region PRIVATE VARIABLES
 
         [SyncVar(ReadPermissions = ReadPermission.Observers, WritePermissions = WritePermission.ServerOnly,
@@ -14,6 +21,8 @@ namespace SEEP.Network
         private string _nickname;
 
         private bool _isInitialized;
+        private CinemachineFreeLook _camera;
+
         #endregion
 
         #region PUBLIC VARIABLES
@@ -44,6 +53,14 @@ namespace SEEP.Network
             }
         }
 
+        private void RequestToSpawnObject()
+        {
+            if (IsClient && IsOwner && ClientManager.Connection.IsActive)
+            {
+                CmdSpawnObject(new Vector3(0, 1, 0), Quaternion.identity, Owner);
+            }
+        }
+
         #endregion
 
         #region EVENTS
@@ -51,6 +68,7 @@ namespace SEEP.Network
         private void OnClientConnected()
         {
             ChangeNickname("test");
+            _camera = FindObjectOfType<CinemachineFreeLook>();
         }
 
         private void OnChangeNickname(string prevName, string nextName, bool asServer)
@@ -67,16 +85,33 @@ namespace SEEP.Network
         public override void OnStartClient()
         {
             if (!IsOwner || _isInitialized) return;
-            
+
             base.OnStartClient();
             _isInitialized = true;
             OnClientConnected();
         }
-        
+
         [ServerRpc]
         private void CmdChangeNickname(string newNickname)
         {
             _nickname = newNickname;
+        }
+
+        [ServerRpc]
+        private void CmdSpawnObject(Vector3 pos, Quaternion rot, NetworkConnection conn)
+        {
+            var clone = Instantiate(dronePrefab, pos, rot);
+            ServerManager.Spawn(clone, conn);
+            RpcRegistrateCamera(conn);
+        }
+
+        [TargetRpc]
+        private void RpcRegistrateCamera(NetworkConnection conn)
+        {
+            var drones = FindObjectsByType<DroneController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var targetDrone = drones.First(x => x.Owner == Owner).transform.GetChild(0);
+            _camera.Follow = targetDrone;
+            _camera.LookAt = targetDrone;
         }
 
         #endregion
@@ -88,6 +123,11 @@ namespace SEEP.Network
         public void ConsoleChangeNickname(string newNickname)
         {
             ChangeNickname(newNickname);
+        }
+
+        public void ConsoleSpawnDrone()
+        {
+            RequestToSpawnObject();
         }
 
         #endregion

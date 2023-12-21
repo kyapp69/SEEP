@@ -5216,7 +5216,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 267849432}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.06915849, y: -0.000000004291296, z: 2.974918e-10, w: 0.9976057}
+  m_LocalRotation: {x: 0.06915849, y: 0.000000004291296, z: -2.974918e-10, w: 0.9976057}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -18046,7 +18046,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 757744035}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.105350815, y: -0.0000000042776565, z: 4.531765e-10, w: 0.99443513}
+  m_LocalRotation: {x: 0.10535081, y: 0.0000000042776587, z: -4.531766e-10, w: 0.99443513}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -47414,6 +47414,36 @@ PrefabInstance:
       propertyPath: m_Name
       value: Drone Offline
       objectReference: {fileID: 0}
+    - target: {fileID: 4458880573861144003, guid: 683dde213112816aeb49a6de653e96f1,
+        type: 3}
+      propertyPath: raycastThin
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 4458880573861144003, guid: 683dde213112816aeb49a6de653e96f1,
+        type: 3}
+      propertyPath: raycastType
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4458880573861144003, guid: 683dde213112816aeb49a6de653e96f1,
+        type: 3}
+      propertyPath: raycastLength
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4458880573861144003, guid: 683dde213112816aeb49a6de653e96f1,
+        type: 3}
+      propertyPath: hitMask.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4458880573861144003, guid: 683dde213112816aeb49a6de653e96f1,
+        type: 3}
+      propertyPath: thinDimension.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4458880573861144003, guid: 683dde213112816aeb49a6de653e96f1,
+        type: 3}
+      propertyPath: customThinDimension
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4696992506657685397, guid: 683dde213112816aeb49a6de653e96f1,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -47474,7 +47504,8 @@ PrefabInstance:
       propertyPath: speedText
       value: 
       objectReference: {fileID: 693017267}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4458880573861144003, guid: 683dde213112816aeb49a6de653e96f1, type: 3}
     m_RemovedGameObjects:
     - {fileID: 5826306770011089402, guid: 683dde213112816aeb49a6de653e96f1, type: 3}
     - {fileID: 3768003818545507421, guid: 683dde213112816aeb49a6de653e96f1, type: 3}

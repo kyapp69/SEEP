@@ -1,5 +1,6 @@
 using FishNet.Object.Prediction;
 using System;
+using UnityEngine;
 
 namespace SEEP.Network.Controllers
 {
@@ -8,13 +9,15 @@ namespace SEEP.Network.Controllers
         public float TargetAngle;
         public bool Jump;
         public bool IsMoving;
+        public Quaternion Rotation;
 
         //TODO: Rework move data. Need to add acceleration force support
-        public DroneMoveData(float targetAngle, bool isMoving, bool jump)
+        public DroneMoveData(float targetAngle, bool isMoving, bool jump, Quaternion rotation)
         {
             TargetAngle = targetAngle;
             Jump = jump;
             IsMoving = isMoving;
+            Rotation = rotation;
             _tick = 0;
         }
         

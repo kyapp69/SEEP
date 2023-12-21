@@ -1,5 +1,6 @@
 using DavidFDev.DevConsole;
 using SEEP.Network;
+using UnityEditor;
 using UnityEngine;
 
 namespace SEEP.Utils
@@ -47,7 +48,14 @@ namespace SEEP.Utils
                     helpText: "New nickname"
                 ),
                 callback: _clientController.ConsoleChangeNickname
-            ), onlyInDevBuild: true);
+            ));
+
+            DevConsole.AddCommand(Command.Create(
+                name: "spawndrone",
+                aliases: "drone",
+                helpText: "Spawn drone to your player",
+                callback: _clientController.ConsoleSpawnDrone
+            ));
 #endif
         }
     }
