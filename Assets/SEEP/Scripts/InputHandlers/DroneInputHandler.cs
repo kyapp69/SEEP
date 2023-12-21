@@ -2,11 +2,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Logger = SEEP.Utils.Logger;
 
-namespace SEEP.VehicleController
+namespace SEEP.InputHandlers
 {
     [RequireComponent(typeof(PlayerInput))]
     [DisallowMultipleComponent]
-    public class VehicleInput : MonoBehaviour
+    public class DroneInputHandler : MonoBehaviour
     {
         private PlayerInput _input;
         private InputActionMap _defaultMap;
