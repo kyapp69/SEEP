@@ -1,27 +1,22 @@
-using System;
-using FishNet.Managing.Timing;
-using FishNet.Object;
-using FishNet.Object.Prediction;
-using SEEP.VehicleController;
+using SEEP.InputHandlers;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
-using Logger = SEEP.Utils.Logger;
 
 namespace SEEP
 {
+    [RequireComponent(typeof(DroneInputHandler))]
     public class DroneOfflineController : MonoBehaviour
     {
         [SerializeField] private float jumpForce = 15f;
         [SerializeField] private float moveSpeed = 15f;
         [SerializeField] private float maxSpeed = 8f;
         [SerializeField] private float rotationSmoothTime = 5f;
-        [FormerlySerializedAs("sidewaysDragMultiplier")] [SerializeField] private float sidewaysDragReduceMultiplier = 1f;
+        [SerializeField] private float sidewaysDragReduceMultiplier = 1f;
         [SerializeField] private TextMeshProUGUI speedText;
 
         #region PRIVATE
 
-        private VehicleInput _input;
+        private DroneInputHandler _input;
         private Rigidbody _rigidbody;
         private Vector3 _movement;
         private bool _jump;
@@ -44,7 +39,7 @@ namespace SEEP
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody>();
-            _input = GetComponent<VehicleInput>();
+            _input = GetComponent<DroneInputHandler>();
             _distToGround = GetComponent<CapsuleCollider>().bounds.extents.y;
             _mainCameraTransform = Camera.main.transform;
         }
