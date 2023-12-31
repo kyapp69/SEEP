@@ -64,10 +64,10 @@ jobs:
         with:
           name: Build
           path: |
-            - build/StandaloneWindows64/StandaloneWindows64_Data
-            - build/StandaloneWindows64/baselib.dll
-            - build/StandaloneWindows64/GameAssembly.dll
-            - build/StandaloneWindows64/StandaloneWindows64.exe
-            - build/StandaloneWindows64/UnityCrashHandler64.exe
-            - build/StandaloneWindows64/UnityPlayer.dll
+            - StandaloneWindows64_Data
+            - baselib.dll
+            - GameAssembly.dll
+            - StandaloneWindows64.exe
+            - UnityCrashHandler64.exe
+            - UnityPlayer.dll
 
