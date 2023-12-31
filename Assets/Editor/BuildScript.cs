@@ -15,7 +15,7 @@ public class BuildScript
         var options = GetValidatedOptions();
 
         var buildTarget = (BuildTarget)Enum.Parse(typeof(BuildTarget), options["buildTarget"]);
-        Build(buildTarget, bool.Parse(options["developmentBuild"]), options["customBuildPath"]);
+        Build(buildTarget, bool.Parse(options["developmentBuild"]));
     }
 
     private static Dictionary<string, string> GetValidatedOptions()
@@ -50,7 +50,7 @@ public class BuildScript
             validatedOptions.Add("developerBuild", defaultDeveloperBuild.ToString());
         }
 
-        if (!validatedOptions.TryGetValue("customBuildPath", out _))
+        /*if (!validatedOptions.TryGetValue("customBuildPath", out _))
         {
             Console.WriteLine("Missing argument -customBuildPath");
             EditorApplication.Exit(130);
@@ -65,7 +65,7 @@ public class BuildScript
         {
             Console.WriteLine($"Invalid argument -customBuildName, defaulting to {defaultCustomName}.");
             validatedOptions.Add("customBuildName", defaultCustomName);
-        }
+        }*/
 
         return validatedOptions;
     }
@@ -102,14 +102,13 @@ public class BuildScript
         }
     }
 
-    private static void Build(BuildTarget buildTarget, bool isDevelopment, string filePath)
+    private static void Build(BuildTarget buildTarget, bool isDevelopment)
     {
         var options = new BuildPlayerOptions()
         {
             options = BuildOptions.CompressWithLz4HC,
             scenes = new [] {"SampleScene"},
-            target = buildTarget,
-            locationPathName = filePath
+            target = buildTarget
         };
         if (isDevelopment)
             options.options &= BuildOptions.Development;
