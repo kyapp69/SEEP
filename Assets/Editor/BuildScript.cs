@@ -21,11 +21,11 @@ public class BuildScript
     private static Dictionary<string, string> GetValidatedOptions()
     {
         ParseCommandLineArguments(out Dictionary<string, string> validatedOptions);
-        /*if (!validatedOptions.TryGetValue("projectPath", out _))
+        if (!validatedOptions.TryGetValue("projectPath", out _))
         {
             Console.WriteLine("Missing argument -projectPath");
             EditorApplication.Exit(110);
-        }*/
+        }
 
         if (!validatedOptions.TryGetValue("buildTarget", out var buildTarget))
         {
@@ -50,7 +50,7 @@ public class BuildScript
             validatedOptions.Add("developerBuild", defaultDeveloperBuild.ToString());
         }
 
-        /*if (!validatedOptions.TryGetValue("customBuildPath", out _))
+        if (!validatedOptions.TryGetValue("customBuildPath", out _))
         {
             Console.WriteLine("Missing argument -customBuildPath");
             EditorApplication.Exit(130);
@@ -65,7 +65,7 @@ public class BuildScript
         {
             Console.WriteLine($"Invalid argument -customBuildName, defaulting to {defaultCustomName}.");
             validatedOptions.Add("customBuildName", defaultCustomName);
-        }*/
+        }
 
         return validatedOptions;
     }
@@ -113,7 +113,8 @@ public class BuildScript
         if (isDevelopment)
             options.options &= BuildOptions.Development;
 
-        var summary = BuildPipeline.BuildPlayer(options).summary;
+        var summary = BuildPipeline.BuildPlayer(options)
+            .summary;
         ReportSummary(summary);
         ExitWithResult(summary.result);
     }

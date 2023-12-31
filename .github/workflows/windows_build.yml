@@ -4,7 +4,7 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
-    name: Build
+    name: Windows Build
     runs-on: windows-2022
     steps:
       # Checkout (without LFS)
@@ -56,7 +56,8 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           buildMethod: BuildScript.Build
-          customParameters: -buildTarget StandaloneWindows64 -developmentBuild true -customBuildPath build
+          targetPlatform: StandaloneWindows64
+          customParameters: -developmentBuild true
           allowDirtyBuild: true
 
       # Output
