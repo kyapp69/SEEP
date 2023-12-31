@@ -57,7 +57,7 @@ jobs:
         with:
           buildMethod: BuildScript.Build
           targetPlatform: StandaloneWindows64
-          customParameters: -developmentBuild true
+          customParameters: -developerBuild true -customBuildPath build
           allowDirtyBuild: true
 
       # Output

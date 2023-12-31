@@ -15,7 +15,7 @@ public class BuildScript
         var options = GetValidatedOptions();
 
         var buildTarget = (BuildTarget)Enum.Parse(typeof(BuildTarget), options["buildTarget"]);
-        Build(buildTarget, bool.Parse(options["developmentBuild"]));
+        Build(buildTarget, bool.Parse(options["developmentBuild"]), options["customBuildPath"]);
     }
 
     private static Dictionary<string, string> GetValidatedOptions()
@@ -102,13 +102,14 @@ public class BuildScript
         }
     }
 
-    private static void Build(BuildTarget buildTarget, bool isDevelopment)
+    private static void Build(BuildTarget buildTarget, bool isDevelopment, string filePath)
     {
         var options = new BuildPlayerOptions()
         {
             options = BuildOptions.CompressWithLz4HC,
             scenes = new [] {"SampleScene"},
-            target = buildTarget
+            target = buildTarget,
+            locationPathName = filePath
         };
         if (isDevelopment)
             options.options &= BuildOptions.Development;
