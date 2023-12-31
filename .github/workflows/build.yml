@@ -37,6 +37,7 @@ jobs:
           projectPath: ${{ matrix.projectPath }}
           unityVersion: ${{ matrix.unityVersion }}
           targetPlatform: ${{ matrix.targetPlatform }}
+          allowDirtyBuild: true
       - uses: actions/upload-artifact@v3
         with:
           name: Build
@@ -76,6 +77,7 @@ jobs:
         with:
           projectPath: ${{ matrix.projectPath }}
           unityVersion: ${{ matrix.unityVersion }}
+          allowDirtyBuild: true
           targetPlatform: ${{ matrix.targetPlatform }}
       - uses: actions/upload-artifact@v3
         with:
