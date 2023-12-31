@@ -60,7 +60,9 @@ jobs:
 
       - name: Print the final result
         shell: bash
-        run: ls
+        run: |
+          cd build
+          ls
 
       # Output
       - name: Upload build to server
