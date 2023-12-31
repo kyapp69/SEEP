@@ -58,20 +58,16 @@ jobs:
           targetPlatform: StandaloneLinux64
           allowDirtyBuild: true
 
-      - name: Print the final result
+      - name: Delete debug info
         shell: bash
         run: |
-          cd build
-          ls
-          pwd
+          cd build/StandaloneLinux64
+          rm -rf StandaloneLinux64_BackUpThisFolder_ButDontShipItWithYourGame
+          rm -rf StandaloneLinux64_BurstDebugInformation_DoNotShip
 
       # Output
       - name: Upload build to server
         uses: actions/upload-artifact@v3
         with:
           name: Build
-          path: |
-            - StandaloneLinux64_Data
-            - StandaloneLinux64
-            - UnityPlayer.so
-            - GameAssembly.so
+          path: build
