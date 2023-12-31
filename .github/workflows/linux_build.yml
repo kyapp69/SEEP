@@ -57,7 +57,7 @@ jobs:
         with:
           buildMethod: BuildScript.Build
           targetPlatform: StandaloneLinux64
-          customParameters: -developerBuild true -customBuildPath build
+          customParameters: -developerBuild true
           allowDirtyBuild: true
 
       # Output
