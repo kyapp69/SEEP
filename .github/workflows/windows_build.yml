@@ -55,7 +55,8 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          targetPlatform: StandaloneWindows64
+          buildMethod: BuildScript.Build
+          customParameters: -buildTarget StandaloneWindows64 -developmentBuild true -customBuildPath build
           allowDirtyBuild: true
 
       # Output
@@ -70,6 +71,3 @@ jobs:
             build/StandaloneWindows64/StandaloneWindows64.exe
             build/StandaloneWindows64/UnityCrashHandler64.exe
             build/StandaloneWindows64/UnityPlayer.dll
-            
-      - name: Return License
-        uses: game-ci/unity-return-license@v2.0.0
