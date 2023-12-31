@@ -63,5 +63,11 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Build
-          path: build
+          paths: 
+            - build/StandaloneWindows64/StandaloneWindows64_Data
+            - build/StandaloneWindows64/baselib.dll
+            - build/StandaloneWindows64/GameAssembly.dll
+            - build/StandaloneWindows64/StandaloneWindows64.exe
+            - build/StandaloneWindows64/UnityCrashHandler64.exe
+            - build/StandaloneWindows64/UnityPlayer.dll
 
