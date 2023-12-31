@@ -63,6 +63,7 @@ jobs:
         run: |
           cd build
           ls
+          pwd
 
       # Output
       - name: Upload build to server
