@@ -58,19 +58,13 @@ jobs:
           targetPlatform: StandaloneLinux64
           allowDirtyBuild: true
 
-      - name: Print the final result
-        shell: bash
-        run: |
-          cd build
-          ls
-
       # Output
       - name: Upload build to server
         uses: actions/upload-artifact@v3
         with:
-          name: Build
+          name: Linux Build
           path: |
-            - StandaloneLinux64_Data
-            - StandaloneLinux64
-            - UnityPlayer.so
-            - GameAssembly.so
+            build/StandaloneLinux64/StandaloneLinux64_Data
+            build/StandaloneLinux64/StandaloneLinux64
+            build/StandaloneLinux64/UnityPlayer.so
+            build/StandaloneLinux64/GameAssembly.so
