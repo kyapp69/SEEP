@@ -70,4 +70,6 @@ jobs:
             build/StandaloneWindows64/StandaloneWindows64.exe
             build/StandaloneWindows64/UnityCrashHandler64.exe
             build/StandaloneWindows64/UnityPlayer.dll
-
+            
+      - name: Return License
+        uses: game-ci/unity-return-license@v2.0.0

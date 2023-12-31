@@ -1,9 +1,0 @@
-name: Return Unity License
-
-on: [workflow_dispatch]
-
-jobs:
-  return:
-    name: Return License
-    uses: game-ci/unity-return-license@v2
-    if: always()
