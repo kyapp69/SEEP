@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -15,7 +16,7 @@ public class BuildScript
         var options = GetValidatedOptions();
 
         var buildTarget = (BuildTarget)Enum.Parse(typeof(BuildTarget), options["buildTarget"]);
-        Build(buildTarget, bool.Parse(options["developmentBuild"]), options["customBuildPath"]);
+        Build(buildTarget, bool.Parse(options["developerBuild"]), options["customBuildPath"]);
     }
 
     private static Dictionary<string, string> GetValidatedOptions()
@@ -104,10 +105,11 @@ public class BuildScript
 
     private static void Build(BuildTarget buildTarget, bool isDevelopment, string filePath)
     {
+        string[] scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(s => s.path).ToArray();
         var options = new BuildPlayerOptions()
         {
             options = BuildOptions.CompressWithLz4HC,
-            scenes = new [] {"SampleScene"},
+            scenes = scenes,
             target = buildTarget,
             locationPathName = filePath
         };
