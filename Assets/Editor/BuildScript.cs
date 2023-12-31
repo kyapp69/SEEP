@@ -108,13 +108,11 @@ public class BuildScript
         string[] scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(s => s.path).ToArray();
         var options = new BuildPlayerOptions()
         {
-            options = BuildOptions.Development,
+            options = BuildOptions.Development | BuildOptions.CompressWithLz4HC,
             scenes = scenes,
             target = buildTarget,
             locationPathName = filePath
         };
-        if (isDevelopment)
-            options.options &= BuildOptions.Development;
 
         var summary = BuildPipeline.BuildPlayer(options)
             .summary;
