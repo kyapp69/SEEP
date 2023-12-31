@@ -1,4 +1,4 @@
-name: Actions 😎
+name: Build project ILL2CPP
 
 on: [push, pull_request, workflow_dispatch]
 
