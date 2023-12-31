@@ -246,7 +246,6 @@ namespace SEEP.Network.Controllers
         private void Move(DroneMoveData md, ReplicateState state = ReplicateState.Invalid,
             Channel channel = Channel.Unreliable)
         {
-            
             if (!IsOwner)
             {
                 transform.rotation = md.Rotation;

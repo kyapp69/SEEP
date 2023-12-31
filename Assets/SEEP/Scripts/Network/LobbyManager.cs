@@ -46,7 +46,8 @@ namespace SEEP.Network
         {
             _cachedClients = Array.Empty<ClientController>();
             _clients.OnChange += OnClientsUpdate;
-            Initialize();
+            if(IsServer)
+                Initialize();
         }
 
         #endregion
