@@ -63,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Build
-          paths: 
+          path: |
             - build/StandaloneLinux64/StandaloneLinux64_Data
             - build/StandaloneLinux64/StandaloneLinux64
             - build/StandaloneLinux64/UnityPlayer.so
