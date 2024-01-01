@@ -1,4 +1,4 @@
-name: Test project
+name: Testing
 
 on: [push, pull_request]
 
@@ -12,6 +12,7 @@ jobs:
         testMode:
           - playmode
           - editmode
+          - standalone
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,7 +20,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: Library
-          key: Library-Linux
+          key: Library-Linux-Testing
           restore-keys: |
             Library-
       - uses: game-ci/unity-test-runner@v4
@@ -29,7 +30,6 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          projectPath: ${{ matrix.projectPath }}
           testMode: ${{ matrix.testMode }}
           artifactsPath: ${{ matrix.testMode }}-artifacts
           githubToken: ${{ secrets.GITHUB_TOKEN }}
