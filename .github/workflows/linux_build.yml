@@ -71,6 +71,3 @@ jobs:
             build/StandaloneLinux64/StandaloneLinux64
             build/StandaloneLinux64/UnityPlayer.so
             build/StandaloneLinux64/GameAssembly.so
-            
-      - name: Return License
-        uses: game-ci/unity-return-license@v2.0.0
