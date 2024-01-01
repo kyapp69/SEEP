@@ -1,6 +1,6 @@
-name: Test
+name: Validate project
 
-on: push
+on: [push, pull_request, workflow_dispatch]
   
 env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -21,7 +21,7 @@ jobs:
     name: Test all modes 📝
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Create LFS file list
@@ -44,8 +44,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Library
-          #key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          key: Library-Linux
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
             Library-
 
@@ -57,74 +56,4 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: Test results (all modes)
-          path: ${{ steps.testRunner.outputs.artifactsPath }}
-          
-  buildLinux:
-    needs: testRunner
-    name: Linux Build
-    runs-on: ubuntu-latest
-    steps:
-      # Checkout (without LFS)
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Git LFS
-      - name: Create LFS file list
-        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-
-      - name: Restore LFS cache
-        uses: actions/cache@v3
-        id: lfs-cache
-        with:
-          path: .git/lfs
-          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
-
-      - name: Git LFS Pull
-        run: |
-          git lfs pull
-          git add .
-          git reset --hard
-
-      # Cache
-      - name: Caching
-        uses: actions/cache@v3
-        with:
-          path: Library
-          #key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          key: Library-Linux
-          restore-keys: |
-            Library-
-
-      # Test
-      #- name: Run tests
-      #  uses: game-ci/unity-test-runner@v4
-      #  env:
-      #    UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-      #    UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-      #    UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-      #  with:
-      #    githubToken: ${{ secrets.GITHUB_TOKEN }}
-
-      # Build
-      - name: Build project
-        uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          buildMethod: BuildScript.Build
-          targetPlatform: StandaloneLinux64
-          customParameters: -developerBuild true
-          allowDirtyBuild: true
-
-      # Output
-      - name: Upload build to server
-        uses: actions/upload-artifact@v3
-        with:
-          name: Linux Build
-          path: |
-            build/StandaloneLinux64/StandaloneLinux64_Data
-            build/StandaloneLinux64/StandaloneLinux64
-            build/StandaloneLinux64/UnityPlayer.so
-            build/StandaloneLinux64/GameAssembly.so
+          path: ${{ steps.testRunner.outputs.artifactsPath }}    
