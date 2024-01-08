@@ -159,3 +159,7 @@ MonoBehaviour:
   rotationSmoothTime: 0.15
   sidewaysDragReduceMultiplier: 1
   speedText: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  maxDist: 0.1

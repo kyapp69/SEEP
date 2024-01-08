@@ -12,12 +12,16 @@ namespace SEEP.InputHandlers
         private InputActionMap _defaultMap;
         private InputAction _controlAction;
         private InputAction _jumpAction;
+        private InputAction _climbAction;
 
         private Vector2 _control;
         private bool _jump;
+        private bool _climb;
 
         public Vector2 Control => _control;
         public bool Jump => _jump;
+
+        public bool Climb => _climb;
 
         private void Start()
         {
@@ -33,11 +37,19 @@ namespace SEEP.InputHandlers
             _defaultMap = _input.currentActionMap;
             _controlAction = _defaultMap.FindAction("Control");
             _jumpAction = _defaultMap.FindAction("Jump");
+            _climbAction = _defaultMap.FindAction("Climb");
             
             _controlAction.performed += ControlAction;
             _controlAction.canceled += ControlAction;
             _jumpAction.performed += JumpAction;
             _jumpAction.canceled += JumpAction;
+            _climbAction.performed += ClimbAction;
+            _climbAction.canceled += ClimbAction;
+        }
+
+        private void ClimbAction(InputAction.CallbackContext obj)
+        {
+            _climb = obj.ReadValueAsButton();
         }
 
         private void JumpAction(InputAction.CallbackContext obj)

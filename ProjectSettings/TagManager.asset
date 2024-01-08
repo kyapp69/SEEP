@@ -9,13 +9,13 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
-  - 
-  - 
+  - Stairs
+  - Detailed Stairs
   - YuME_TileMap
-  - 
+  - Booster
   - 
   - 
   - 

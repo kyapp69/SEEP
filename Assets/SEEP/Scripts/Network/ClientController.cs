@@ -108,7 +108,7 @@ namespace SEEP.Network
         [TargetRpc]
         private void RpcRegistrateCamera(NetworkConnection conn)
         {
-            var drones = FindObjectsByType<DroneController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var drones = FindObjectsByType<Controllers.DroneController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             var targetDrone = drones.First(x => x.Owner == Owner).transform.GetChild(0);
             _camera.Follow = targetDrone;
             _camera.LookAt = targetDrone;
