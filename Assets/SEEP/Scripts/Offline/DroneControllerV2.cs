@@ -1,7 +1,10 @@
 using System;
+using System.Collections;
 using DavidFDev.DevConsole;
+using DG.Tweening;
 using NaughtyAttributes;
 using SEEP.InputHandlers;
+using SEEP.Utils;
 using TMPro;
 using UnityEngine;
 using Logger = SEEP.Utils.Logger;
@@ -77,6 +80,8 @@ namespace SEEP.Offline
 
         [SerializeField, Range(0f, 1f)] private float rotationVelocityThreshold = 0.1f;
 
+        [SerializeField] private float rotationUpAxisSpeed = 0.5f;
+
         [Space(2f)] [Header("Angle settings")] [SerializeField, Range(0, 90), Tooltip("Max ground angle for moving")]
         private float maxGroundAngle = 25f;
 
@@ -88,6 +93,8 @@ namespace SEEP.Offline
 
         [SerializeField, ShowIf("showDebugInfo")]
         private TextMeshProUGUI debugText;
+
+        [SerializeField] private Transform cameraOrientation;
 
         #endregion
 
@@ -149,6 +156,11 @@ namespace SEEP.Offline
 
         //Вектор, который отображает скорость с которой тормозит, при отпускании управления
         private Vector2 _currentBrakeVelocity;
+
+        //Направление гравитации
+        private Vector3 _upAxis, _forwardAxis, _rightAxis, _gravityForce;
+
+        private Quaternion _gravityRotation;
 
         private enum RotationType
         {
@@ -220,6 +232,7 @@ namespace SEEP.Offline
         {
             _inputHandler = GetComponent<DroneInputHandler>();
             _rigidbody = GetComponent<Rigidbody>();
+            _rigidbody.useGravity = false;
             OnValidate();
 #if DEBUG
             DebugInitialize();
@@ -232,17 +245,21 @@ namespace SEEP.Offline
 
             if (playerInputSpace)
             {
+                _rightAxis = ProjectDirectionOnPlane(playerInputSpace.right, _upAxis);
+                _forwardAxis = ProjectDirectionOnPlane(playerInputSpace.forward, _upAxis);
                 RotateObject();
                 var forward = playerInputSpace.forward;
-                forward.y = 0f;
+                //forward.y = 0f;
                 forward.Normalize();
                 var right = playerInputSpace.right;
-                right.y = 0f;
+                //right.y = 0f;
                 right.Normalize();
                 _desiredVelocity = (forward * _inputHandler.Control.y + right * _inputHandler.Control.x) * maxSpeed;
             }
             else
             {
+                _rightAxis = ProjectDirectionOnPlane(Vector3.right, _upAxis);
+                _forwardAxis = ProjectDirectionOnPlane(Vector3.forward, _upAxis);
                 _desiredVelocity = new Vector3(_inputHandler.Control.x, 0f, _inputHandler.Control.y) * maxSpeed;
             }
 
@@ -257,6 +274,7 @@ namespace SEEP.Offline
 
         private void FixedUpdate()
         {
+            _gravityForce = CustomGravity.GetGravity(_rigidbody.position, out _upAxis);
             UpdateState();
             AdjustVelocity();
             if (compensateStairsGravity)
@@ -269,8 +287,10 @@ namespace SEEP.Offline
                 //Обнуляем флаг прыжка
                 _desiredJump = false;
                 //Вызываем обработчик прыжка
-                Jump();
+                Jump(_gravityForce);
             }
+
+            _velocity += _gravityForce * Time.deltaTime;
 
             _rigidbody.velocity = _velocity;
 
@@ -308,8 +328,10 @@ namespace SEEP.Offline
                 //Получаем вектор нормали (указывает вверх, от точки прикосновени)
                 var normal = collision.GetContact(i).normal;
 
+                var upDot = Vector3.Dot(_upAxis, normal);
+
                 //Если угол больше, чем вычисленное на OnValidate, который зависит от maxGroundAngle
-                if (normal.y >= minDot)
+                if (upDot >= minDot)
                 {
                     //То считаем, что мы стоим на земле и добавляем к счётчику контактов с землей
                     _groundContactCount += 1;
@@ -317,7 +339,7 @@ namespace SEEP.Offline
                     //Добавляем нормаль, для прыжка, чтобы вычислить среднюю нормаль
                     _contactNormal += normal;
                 }
-                else if (normal.y > -0.01f)
+                else if (upDot > -0.01f)
                 {
                     //Считаем что касаемся склона
                     _steepContactCount += 1;
@@ -329,19 +351,31 @@ namespace SEEP.Offline
 
         private void RotateObject()
         {
+            _gravityRotation = Quaternion.LookRotation(_forwardAxis, _upAxis);
             switch (rotationType)
             {
                 case RotationType.RotateWithVelocity:
                     if (_velocity.magnitude > rotationVelocityThreshold)
                     {
-                        var targetAngle = Mathf.Atan2(_velocity.x, _velocity.z) * Mathf.Rad2Deg;
+                        // Проекция вектора на плоскость
+                        var projectedVector = _velocity - Vector3.Dot(_velocity, _upAxis) * _upAxis;
+
+                        // Вычисляем координаты в новом базисе
+                        var x = Vector3.Dot(projectedVector, _rightAxis);
+                        var y = Vector3.Dot(projectedVector, _forwardAxis);
+
+                        // Создаем двухмерный вектор
+                        var inPlaneVector2D = new Vector2(x, y);
+
+                        var targetAngle = Mathf.Atan2(inPlaneVector2D.x, inPlaneVector2D.y) * Mathf.Rad2Deg;
 
                         _calculatedAngle = Mathf.SmoothDampAngle(_calculatedAngle, targetAngle,
                             ref _currentAngleVelocity,
                             rotationVelocitySpeed);
 
                         //Apply calculated angle
-                        transform.rotation = Quaternion.Euler(0, _calculatedAngle, 0);
+
+                        transform.rotation = _gravityRotation * Quaternion.Euler(0, _calculatedAngle, 0);
                     }
 
                     break;
@@ -351,7 +385,8 @@ namespace SEEP.Offline
                         rotationSmoothTime);
 
                     //Apply calculated angle
-                    transform.rotation = Quaternion.Euler(0, _calculatedAngle, 0);
+                    //transform.rotation = Quaternion.Euler(0, _calculatedAngle, 0);
+                    transform.rotation = _gravityRotation * Quaternion.Euler(0, _calculatedAngle, 0);
                     break;
             }
         }
@@ -389,7 +424,7 @@ namespace SEEP.Offline
             else
             {
                 //Если не на земле, то устанавливаем нормаль вверх
-                _contactNormal = Vector3.up;
+                _contactNormal = _upAxis;
             }
         }
 
@@ -417,13 +452,15 @@ namespace SEEP.Offline
 
             //TODO: Добавить большее количество рейкастов, для точного контроля
             //Если ничего нету под рейкастом
-            if (!Physics.Raycast(_rigidbody.position, Vector3.down, out var hit, maxDistToGround, groundMask))
+            if (!Physics.Raycast(_rigidbody.position, -_upAxis, out var hit, maxDistToGround, groundMask))
             {
                 return false;
             }
 
+            var upDot = Vector3.Dot(_upAxis, hit.normal);
+
             //Проверяем точку, на возможное прикосновения
-            if (hit.normal.y < GetMinDot(hit.collider.gameObject.layer))
+            if (upDot < GetMinDot(hit.collider.gameObject.layer))
             {
                 return false;
             }
@@ -455,8 +492,8 @@ namespace SEEP.Offline
                     {
                         //Получаем новые оси, которые проецированы на нашу плоскость на которой мы находимся
                         //Позволяет не терять ускорение при взбирании на горку
-                        var xAxis = ProjectOnContactPlane(Vector3.right).normalized;
-                        var zAxis = ProjectOnContactPlane(Vector3.forward).normalized;
+                        var xAxis = ProjectDirectionOnPlane(_rightAxis, _contactNormal);
+                        var zAxis = ProjectDirectionOnPlane(_forwardAxis, _contactNormal);
 
                         //Проецируем наше ускорение на полученные оси
                         var currentX = Vector3.Dot(_velocity, xAxis);
@@ -468,17 +505,17 @@ namespace SEEP.Offline
                         _velocity = Vector3.SmoothDamp(_velocity, _desiredVelocity, ref _currentVectorVelocity,
                             speedSmoothTime, acceleration);
 
-                        var sideAxis = Vector3.Cross(_desiredVelocity, Vector3.up).normalized;
+                        /*var sideAxis = Vector3.Cross(_desiredVelocity, Vector3.up).normalized;
                         var sideForce = Vector3.Dot(_velocity, sideAxis);
 
-                        _velocity -= sideAxis * (sideForce * reduceSidewaysStrength);
+                        _velocity -= sideAxis * (sideForce * reduceSidewaysStrength);*/
                     }
                     else if (_velocity.magnitude > 0.01f && OnGround)
                     {
                         //Получаем новые оси, которые проецированы на нашу плоскость на которой мы находимся
                         //Позволяет не терять ускорение при взбирании на горку
-                        var xAxis = ProjectOnContactPlane(Vector3.right).normalized;
-                        var zAxis = ProjectOnContactPlane(Vector3.forward).normalized;
+                        var xAxis = ProjectDirectionOnPlane(_rightAxis, _contactNormal);
+                        var zAxis = ProjectDirectionOnPlane(_forwardAxis, _contactNormal);
 
                         //Проецируем наше ускорение на полученные оси
                         var currentX = Vector3.Dot(_velocity, xAxis);
@@ -491,6 +528,7 @@ namespace SEEP.Offline
                         //Добавляем плавно скорость, используя наши новые оси
                         _velocity += xAxis * (newVelocity.x - currentX) + zAxis * (newVelocity.y - currentZ);
                     }
+
                     break;
             }
         }
@@ -498,7 +536,7 @@ namespace SEEP.Offline
         private void BoostAdjust()
         {
             if ((boostersMask.value & (1 << _lastGroundLayer)) == 0) return;
-            var boostVector = ProjectOnContactPlane(Physics.gravity) * Time.deltaTime;
+            var boostVector = ProjectOnContactPlane(_gravityForce) * Time.deltaTime;
             _velocity -= boostVector * boosterAcceleration;
         }
 
@@ -506,23 +544,24 @@ namespace SEEP.Offline
         {
             if (compensateOnStraightStairs)
             {
-                var angle = Vector3.Dot(_contactNormal, Vector3.up);
+                /*var angle = Vector3.Dot(_contactNormal, Vector3.up);
                 angle /= _contactNormal.magnitude * Vector3.up.magnitude;
                 if ((stairsMask.value & (1 << _lastGroundLayer)) == 0 ||
                     !(Mathf.Acos(angle) <= _minGroundDotProduct)) return;
+                    */
 
-                _stairsForce = ProjectOnContactPlane(Physics.gravity) * Time.deltaTime;
+                _stairsForce = ProjectOnContactPlane(_gravityForce) * Time.deltaTime;
                 _velocity -= _stairsForce;
             }
             else
             {
                 if ((stairsMask.value & (1 << _lastGroundLayer)) == 0) return;
-                _stairsForce = ProjectOnContactPlane(Physics.gravity) * Time.deltaTime;
+                _stairsForce = ProjectOnContactPlane(_gravityForce) * Time.deltaTime;
                 _velocity -= _stairsForce;
             }
         }
 
-        private void Jump()
+        private void Jump(Vector3 gravity)
         {
             //Определяем направление прыжка
             Vector3 jumpDirection;
@@ -556,11 +595,11 @@ namespace SEEP.Offline
             _stepsSinceLastJump = 0;
 
             //Высчитываем силу прыжка для прыжка на определенную высоту
-            var jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
+            var jumpSpeed = Mathf.Sqrt(2f * gravity.magnitude * jumpHeight);
 
             //Находим среднее направление между поверхностью от которой отталкиваемся и направлением вверх,
             //что позволяет отпрыгивать от стен прямо вверх
-            jumpDirection = (jumpDirection + Vector3.up).normalized;
+            jumpDirection = (jumpDirection + _upAxis).normalized;
 
             //Высчитываем скорость относительно нормали вектора
             var alignedSpeed = Vector3.Dot(_velocity, _contactNormal);
@@ -596,8 +635,9 @@ namespace SEEP.Offline
             //Нормализуем нормаль от склонов
             _steepNormal.Normalize();
 
+            var upDot = Vector3.Dot(_upAxis, _steepNormal);
             //Если угол нормали меньше, чем значение зависимое от maxStairsAngle, то выходим
-            if (!(_steepNormal.y >= _minGroundDotProduct)) return false;
+            if (!(upDot >= _minGroundDotProduct)) return false;
 
             //Иначе принимаем наш склон, как землю
             _groundContactCount = 1;
@@ -609,6 +649,11 @@ namespace SEEP.Offline
         private Vector3 ProjectOnContactPlane(Vector3 vector)
         {
             return vector - _contactNormal * Vector3.Dot(vector, _contactNormal);
+        }
+
+        private Vector3 ProjectDirectionOnPlane(Vector3 direction, Vector3 normal)
+        {
+            return (direction - normal * Vector3.Dot(direction, normal)).normalized;
         }
 
         //Выдаёт значение для расчета точек соприкосновения, взависимости от слоя
@@ -627,7 +672,7 @@ namespace SEEP.Offline
                              $"\nJump Phase: {_jumpPhase}" +
                              $"\nCompensate stairs gravity: {false}" +
                              $"\nOn steep: {OnSteep}" +
-                             $"\nContact: {_contactNormal}. X: {_contactNormal.normalized.magnitude >= 0.99f}";
+                             $"\nGravity: {_gravityForce}. Up axis: {_upAxis}. Sources: {CustomGravity.GravitySourceCount}";
         }
 
         #endregion

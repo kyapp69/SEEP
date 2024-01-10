@@ -4,6 +4,7 @@ using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.InputHandlers
 {
+    [RequireComponent(typeof(PlayerInput))]
     public class CameraInputHandler : MonoBehaviour
     {
         private PlayerInput _input;
@@ -27,7 +28,7 @@ namespace SEEP.InputHandlers
 
             _defaultMap = _input.currentActionMap;
             _lookAction = _defaultMap.FindAction("Look");
-            
+
             _lookAction.performed += LookAction;
             _lookAction.canceled += LookAction;
         }

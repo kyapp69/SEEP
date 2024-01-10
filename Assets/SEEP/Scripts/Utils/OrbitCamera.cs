@@ -1,3 +1,4 @@
+using Cinemachine;
 using SEEP.InputHandlers;
 using UnityEngine;
 
@@ -23,6 +24,8 @@ namespace SEEP.Utils
 
         [SerializeField, Range(0f, 90f)] float alignSmoothRange = 45f;
 
+        [SerializeField, Min(0f)] float upAlignmentSpeed = 360f;
+
         [SerializeField] LayerMask obstructionMask = -1;
 
         Camera regularCamera;
@@ -32,7 +35,12 @@ namespace SEEP.Utils
         Vector2 orbitAngles = new Vector2(45f, 0f);
 
         float lastManualRotationTime;
-        private CameraInputHandler _inputHander;
+
+        Quaternion gravityAlignment = Quaternion.identity;
+
+        Quaternion orbitRotation;
+
+        private CameraInputHandler _inputHandler;
 
         Vector3 CameraHalfExtends
         {
@@ -58,28 +66,23 @@ namespace SEEP.Utils
 
         void Awake()
         {
-            _inputHander = GetComponent<CameraInputHandler>();
             regularCamera = GetComponent<Camera>();
+            _inputHandler = GetComponent<CameraInputHandler>();
             focusPoint = focus.position;
-            transform.localRotation = Quaternion.Euler(orbitAngles);
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-            Physics.simulationMode = SimulationMode.FixedUpdate;
+            transform.localRotation = orbitRotation = Quaternion.Euler(orbitAngles);
         }
 
         void LateUpdate()
         {
+            UpdateGravityAlignment();
             UpdateFocusPoint();
-            Quaternion lookRotation;
             if (ManualRotation() || AutomaticRotation())
             {
                 ConstrainAngles();
-                lookRotation = Quaternion.Euler(orbitAngles);
+                orbitRotation = Quaternion.Euler(orbitAngles);
             }
-            else
-            {
-                lookRotation = transform.localRotation;
-            }
+
+            Quaternion lookRotation = gravityAlignment * orbitRotation;
 
             Vector3 lookDirection = lookRotation * Vector3.forward;
             Vector3 lookPosition = focusPoint - lookDirection * distance;
@@ -101,6 +104,28 @@ namespace SEEP.Utils
             }
 
             transform.SetPositionAndRotation(lookPosition, lookRotation);
+        }
+
+        void UpdateGravityAlignment()
+        {
+            Vector3 fromUp = gravityAlignment * Vector3.up;
+            Vector3 toUp = CustomGravity.GetUpAxis(focusPoint);
+            float dot = Mathf.Clamp(Vector3.Dot(fromUp, toUp), -1f, 1f);
+            float angle = Mathf.Acos(dot) * Mathf.Rad2Deg;
+            float maxAngle = upAlignmentSpeed * Time.deltaTime;
+
+            Quaternion newAlignment =
+                Quaternion.FromToRotation(fromUp, toUp) * gravityAlignment;
+            if (angle <= maxAngle)
+            {
+                gravityAlignment = newAlignment;
+            }
+            else
+            {
+                gravityAlignment = Quaternion.SlerpUnclamped(
+                    gravityAlignment, newAlignment, maxAngle / angle
+                );
+            }
         }
 
         void UpdateFocusPoint()
@@ -131,11 +156,10 @@ namespace SEEP.Utils
 
         bool ManualRotation()
         {
-            Vector2 input = new Vector2(-_inputHander.Look.y, _inputHander.Look.x * 0.2f);
             const float e = 0.001f;
-            if (input.x < -e || input.x > e || input.y < -e || input.y > e)
+            if (_inputHandler.Look.x < -e || _inputHandler.Look.x > e || _inputHandler.Look.y < -e || _inputHandler.Look.y > e)
             {
-                orbitAngles += rotationSpeed * Time.unscaledDeltaTime * input;
+                orbitAngles += rotationSpeed * Time.unscaledDeltaTime * _inputHandler.Look.Reverse();
                 lastManualRotationTime = Time.unscaledTime;
                 return true;
             }
@@ -150,10 +174,10 @@ namespace SEEP.Utils
                 return false;
             }
 
-            Vector2 movement = new Vector2(
-                focusPoint.x - previousFocusPoint.x,
-                focusPoint.z - previousFocusPoint.z
-            );
+            Vector3 alignedDelta =
+                Quaternion.Inverse(gravityAlignment) *
+                (focusPoint - previousFocusPoint);
+            Vector2 movement = new Vector2(alignedDelta.x, alignedDelta.z);
             float movementDeltaSqr = movement.sqrMagnitude;
             if (movementDeltaSqr < 0.0001f)
             {

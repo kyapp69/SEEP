@@ -3,10 +3,10 @@ using SEEP.InputHandlers;
 using TMPro;
 using UnityEngine;
 
-namespace SEEP
+namespace SEEP.Offline
 {
     [RequireComponent(typeof(DroneInputHandler))]
-    public class DroneOfflineController : MonoBehaviour
+    public class DroneController : MonoBehaviour
     {
         [SerializeField] private float jumpForce = 15f;
         [SerializeField] private float moveSpeed = 15f;
