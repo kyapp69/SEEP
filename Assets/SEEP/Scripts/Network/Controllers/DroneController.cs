@@ -1,186 +1,611 @@
+using System;
 using FishNet.Object;
 using FishNet.Object.Prediction;
 using FishNet.Transporting;
-using UnityEngine;
+using NaughtyAttributes;
 using SEEP.InputHandlers;
+using TMPro;
+using UnityEngine;
 
 namespace SEEP.Network.Controllers
 {
     /// <summary>
-    /// Controller for ground drone 
+    /// Networked version of ground drone controller
     /// </summary>
     [RequireComponent(typeof(DroneInputHandler))]
     public class DroneController : NetworkBehaviour
     {
-        [Tooltip("Jump force in newtons")] [SerializeField]
-        private float jumpForce = 15f;
+        #region SERIALIZED FIELDS
 
-        [Tooltip("Acceleration force in newtons")] [SerializeField]
-        private float accelerationForce = 70f;
+        /// <summary>
+        /// A transform that is used to transform the player's input. This is usually an attached camera
+        /// </summary>
+        [SerializeField] private Transform playerInputSpace;
 
-        [Tooltip("Acceleration force in air in newtons")] [SerializeField]
-        private float airAccelerationForce = 15f;
+        [SerializeField] private TextMeshProUGUI debugText;
 
-        [Tooltip("Max horizontal speed")] [SerializeField]
-        private float maxSpeed = 8f;
+        /*
+         * [SerializedField] private bool useCustomGravity;
+         */
 
-        [Tooltip("Time in seconds to cooldown jump ability")] [SerializeField]
-        private float jumpCooldown = 1f;
+        /// <summary>
+        /// Is climbing feature enabled? Currently not worked
+        /// </summary>
+        [Header("Speed settings")] [SerializeField]
+        private bool climbingIsEnabled;
 
-        [Tooltip("Time in seconds, to smooth the rotation of the drone")] [SerializeField]
-        private float rotationSmoothTime = 0.15f;
+        /// <summary>
+        /// Maximum horizontal speed in m/s
+        /// </summary>
+        [SerializeField] [Range(0f, 100f)] private float maxSpeed = 10f;
 
-        [Tooltip("How fast drone should compensate sideways drag (Default = 1f)")] [SerializeField]
-        private float sidewaysDragReduceMultiplier = 1f;
+        /// <summary>
+        /// Max speed for climbing
+        /// </summary>
+        [ShowIf(nameof(climbingIsEnabled))] [SerializeField] [Range(0f, 100f)]
+        private float maxClimbSpeed = 4f;
 
-        [Tooltip("How far down will it be checked if there is ground under the drone")] [SerializeField]
-        private float distanceToGround = 0.1f;
+        /// <summary>
+        /// Max acceleration for ground moving
+        /// </summary>
+        [SerializeField] [Range(0f, 100f)] private float maxAcceleration = 10f;
 
-        [Tooltip("Which layers will be detected as ground")] [SerializeField]
-        private LayerMask groundLayer;
+        /// <summary>
+        /// Max acceleration for air moving
+        /// </summary>
+        [SerializeField] [Range(0f, 100f)] private float maxAirAcceleration = 1f;
+
+        /// <summary>
+        /// Max acceleration for climbing moving. Currently not used
+        /// </summary>
+        [SerializeField] [Range(0f, 100f)] private float maxClimbAcceleration = 40f;
+
+        /// <summary>
+        /// Is jumping feature enabled?
+        /// </summary>
+        [Space(2f)] [Header("Jump settings")] [SerializeField]
+        private bool jumpingIsEnabled;
+
+        /// <summary>
+        /// Desired height of jump in metres
+        /// </summary>
+        [ShowIf(nameof(jumpingIsEnabled))] [SerializeField] [Range(0f, 10f)]
+        private float jumpHeight = 2f;
+
+        /// <summary>
+        /// How much jumps in air can does?
+        /// </summary>
+        [ShowIf(nameof(jumpingIsEnabled))] [SerializeField] [Range(0, 5)]
+        private int maxAirJumps;
+
+        /// <summary>
+        /// EXPERIMENTAL: Compensate gravity force on slopes. Currently not needed
+        /// </summary>
+        [Space(2f)] [Header("Moving settings")] [InfoBox("Experimental feature")] [SerializeField]
+        private bool compensateStairsForce;
+
+        /// <summary>
+        /// Max angle for ground layer
+        /// </summary>
+        [SerializeField] [Range(0, 90)] private float maxGroundAngle = 25f;
+
+        /// <summary>
+        /// Max angle for stairs layer
+        /// </summary>
+        [SerializeField] [Range(0, 90)] private float maxStairsAngle = 50f;
+
+        /// <summary>
+        /// Max angle for climbing
+        /// </summary>
+        [SerializeField] [Range(90, 170)] private float maxClimbAngle = 140f;
+
+        /// <summary>
+        /// The maximum speed at which an object will be snapping to the ground if it jumps on a bump,
+        /// but the angle of the surface under it is still acceptable
+        /// </summary>
+        [SerializeField] [Range(0f, 100f)] private float maxSnapSpeed = 100f;
+
+        /// <summary>
+        /// The distance to which the raycast is released to check the location of the earth under
+        /// the object for snapping to the earth
+        /// </summary>
+        [SerializeField] [Min(0f)] private float probeDistance = 1f;
+
+        /// <summary>
+        /// LayerMask which describes ground layers
+        /// </summary>
+        [SerializeField] private LayerMask probeMask = -1;
+
+        /// <summary>
+        /// LayerMask which describes stairs layers
+        /// </summary>
+        [SerializeField] private LayerMask stairsMask = -1;
+
+        [ShowIf(nameof(climbingIsEnabled))] [SerializeField]
+        private LayerMask climbMask = -1;
+
+        #endregion
 
         #region PRIVATE
 
         /// <summary>
-        /// DroneInputHandler component
+        /// Attached rigidbody component
         /// </summary>
-        private DroneInputHandler _input;
+        private Rigidbody _body;
 
         /// <summary>
-        /// Attached Rigidbody
+        /// The rigidbody component of the object on which our drone was standing.
+        /// It is necessary for smooth movement on moving objects
         /// </summary>
-        private Rigidbody _rigidbody;
+        private Rigidbody _connectedBody;
 
         /// <summary>
-        /// Attached Collider
+        /// Just like _connectedBody, it only stores the object that was in the last frame
         /// </summary>
-        private Collider _collider;
+        private Rigidbody _previousConnectedBody;
 
         /// <summary>
-        /// Transformed player movement to Vector3
-        /// </summary>
-        private Vector3 _movement;
-
-        /// <summary>
-        /// A variable for storing the jump. It is needed in order to cache the player's desire to jump
-        /// and send it to the server when the server tick comes
-        /// </summary>
-        private bool _jump;
-
-        /// <summary>
-        /// Smoothed angle to rotate. Something between target angle and current angle.
-        /// Changing depends on rotationSmoothTime.
+        /// It is needed for the Rotate method. Stores the calculated angle for object rotation.
+        /// Each frame is smoothly overwritten
         /// </summary>
         private float _calculatedAngle;
 
         /// <summary>
-        /// Target rotation angle from our input
-        /// </summary>
-        private float _targetAngle;
-
-        /// <summary>
-        /// The variable needed to calculate the angle.
-        /// Stores the acceleration of the angle change to the target angle
+        /// Stores the speed of the angle change needed for a smooth rotation of the object
         /// </summary>
         private float _currentAngleVelocity;
 
         /// <summary>
-        /// Cached MainCamera transform
+        /// Stores the world position of the _connectedBody object
         /// </summary>
-        private Transform _mainCameraTransform;
+        private Vector3 _connectionWorldPosition;
 
         /// <summary>
-        /// Float required to count jump cooldown. Updated in fixedUpdate
+        /// Stores the local position of the _connectedBody object
         /// </summary>
-        private float _jumpTimer;
+        private Vector3 _connectionLocalPosition;
 
-        private DroneMoveData _lastMoveData;
+        /// <summary>
+        /// Stores the normal of the surface, which is considered to be the earth
+        /// </summary>
+        private Vector3 _contactNormal;
+
+        /// <summary>
+        /// Stores the normal of the surface, which is considered to be the steep
+        /// </summary>
+        private Vector3 _steepNormal;
+
+        /// <summary>
+        /// Stores the normal of the surface, which is considered to be the climb surface
+        /// </summary>
+        private Vector3 _climbNormal;
+
+        /// <summary>
+        /// Stores the normal of the surface, which is considered to be
+        /// the last climb surface. Needed for climbing calculations
+        /// </summary>
+        private Vector3 _lastClimbNormal;
+
+        /// <summary>
+        /// Stores the number of contacts with the surface, which is considered to be the earth surface
+        /// </summary>
+        private int _groundContactCount;
+
+        /// <summary>
+        /// Stores the number of contacts with the surface, which is considered to be the steep surface
+        /// </summary>
+        private int _steepContactCount;
+
+        /// <summary>
+        /// Stores the number of contacts with the surface, which is considered to be the climb surface
+        /// </summary>
+        private int _climbContactCount;
+
+        /// <summary>
+        /// An internal jump counter is required to count jumps in the air.
+        /// Does not display the current jump
+        /// </summary>
+        private int _jumpPhase;
+
+        /// <summary>
+        /// Pre-calculated (OnValidate) value that translate the maximum angle of elevation on the ground.
+        /// It is necessary to optimize the calculation
+        /// </summary>
+        private float _minGroundDotProduct;
+
+        /// <summary>
+        /// Pre-calculated (OnValidate) value that translate the maximum angle of elevation on the stairs.
+        /// It is necessary to optimize the calculation
+        /// </summary>
+        private float _minStairsDotProduct;
+
+        /// <summary>
+        /// Pre-calculated (OnValidate) value that translate the maximum angle of elevation on the climb surface.
+        /// It is necessary to optimize the calculation
+        /// </summary>
+        private float _minClimbDotProduct;
+
+        /// <summary>
+        /// The cached acceleration value. At the beginning of the tick,
+        /// it is cached from the current state of rigidbody.
+        /// As the tick is calculated and changed. At the end, the tick is applied to the rigidbody
+        /// </summary>
+        private Vector3 _velocity;
+
+        private Vector3 _stairsForce;
+
+        /// <summary>
+        /// Velocity of _connectedBody
+        /// </summary>
+        private Vector3 _connectionVelocity;
+
+        /// <summary>
+        /// Internal counter of physics steps since last ground contact
+        /// </summary>
+        private int _stepsSinceLastGrounded;
+
+        /// <summary>
+        /// Internal counter of physics steps since last jump
+        /// </summary>
+        private int _stepsSinceLastJump;
+
+        /// <summary>
+        /// Vectors defining the axes relative to the object
+        /// </summary>
+        private Vector3 _upAxis, _rightAxis, _forwardAxis;
+
+        /// <summary>
+        /// Gravity direction and force at current position. Needed to work with custom gravity.
+        /// Currently just link to Physics.gravity
+        /// </summary>
+        private Vector3 _gravity;
+
+        /// <summary>
+        /// Input handler
+        /// </summary>
+        private DroneInputHandler _droneInput;
+
+        /// <summary>
+        /// Cached input bool
+        /// </summary>
+        private bool _desiredJump, _desiresClimbing;
+
+        /// <summary>
+        /// Cached input vector
+        /// </summary>
+        private Vector2 _playerInput;
+
+        private bool OnGround => _groundContactCount > 0;
+
+        private bool OnSteep => _steepContactCount > 0;
+
+        private bool Climbing => _climbContactCount > 0 && _stepsSinceLastJump > 2;
 
         #endregion
 
         #region MONOBEHAVIOUR
 
-        //Caching some components
         private void Awake()
         {
-            _rigidbody = GetComponent<Rigidbody>();
-            _collider = GetComponent<CapsuleCollider>();
+            _body = GetComponent<Rigidbody>();
+            _droneInput = GetComponent<DroneInputHandler>();
+            debugText = FindObjectOfType<TextMeshProUGUI>();
+            _upAxis = Vector3.up;
+            _gravity = Physics.gravity;
+            OnValidate();
         }
 
-        //Update user input
         private void Update()
         {
-            //Work only owner of object
-            if (!IsOwner) return;
+            if (OwnerId != ClientManager.Connection.ClientId) return;
 
-            //Converting Vector2 input to Vector3
-            _movement = new Vector3(_input.Control.x, 0, _input.Control.y);
-
-            //If player want to jump, check if we can do this, and caching request for next server tick
-            if (!_jump && _input.Jump && _jumpTimer <= 0f && IsGrounded())
+            if (_droneInput)
             {
-                _jump = true;
-                _jumpTimer = jumpCooldown;
+                _playerInput = _droneInput.Control;
+                _desiredJump |= _droneInput.Jump;
             }
+
+            if (playerInputSpace)
+            {
+                _rightAxis = ProjectDirectionOnPlane(playerInputSpace.right, _upAxis);
+                _forwardAxis = ProjectDirectionOnPlane(playerInputSpace.forward, _upAxis);
+            }
+            else
+            {
+                _rightAxis = ProjectDirectionOnPlane(Vector3.right, _upAxis);
+                _forwardAxis = ProjectDirectionOnPlane(Vector3.forward, _upAxis);
+            }
+
+            debugText.text = $"{_stairsForce:f3}";
+            _desiresClimbing = false;
         }
 
-        //Rotate drone in movement direction
-        private void FixedUpdate()
+        private void OnCollisionEnter(Collision collision)
         {
-            if (!IsOwner) return;
-            
-            //Calculate our jumpTimer
-            if (_jumpTimer > 0f)
-                _jumpTimer -= Time.fixedDeltaTime;
+            EvaluateCollision(collision);
+        }
 
-            //If we dont have any input -> exit
-            if (!(_input.Control.magnitude >= 0.1f)) return;
+        private void OnCollisionStay(Collision collision)
+        {
+            EvaluateCollision(collision);
+        }
 
-            //Calculate target angle to our movement
-            _targetAngle = Mathf.Atan2(_movement.x, _movement.z) * Mathf.Rad2Deg +
-                           _mainCameraTransform.eulerAngles.y;
 
-            //Calculate smoothed angle from current to target
-            _calculatedAngle = Mathf.SmoothDampAngle(_calculatedAngle, _targetAngle,
-                ref _currentAngleVelocity, rotationSmoothTime);
-
-            //Apply calculated angle
-            transform.rotation = Quaternion.Euler(0, _calculatedAngle, 0);
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            _minGroundDotProduct = Mathf.Cos(maxGroundAngle * Mathf.Deg2Rad);
+            _minStairsDotProduct = Mathf.Cos(maxStairsAngle * Mathf.Deg2Rad);
+            _minClimbDotProduct = Mathf.Cos(maxClimbAngle * Mathf.Deg2Rad);
+            /*if (!useCustomGravity)
+            {
+                _upAxis = Vector3.up;
+                _gravity = Physics.gravity;
+            }
+            else
+            {
+                compensateStairsForce = false;
+            }*/
         }
 
         #endregion
 
         #region METHODS
 
-        /// <summary>
-        /// Method to check if we grounded
-        /// </summary>
-        /// <returns>True if grounded, and false if not</returns>
-        private bool IsGrounded()
+        private void RotateObject()
         {
-            var boxCastSize = new Vector3(_collider.bounds.size.x, distanceToGround, _collider.bounds.size.z);
-            return Physics.BoxCast(_collider.bounds.center, boxCastSize / 2, Vector3.down, out _,
-                Quaternion.identity, _collider.bounds.extents.y + distanceToGround, groundLayer);
+            var cachedVelocity = _body.velocity;
+            cachedVelocity.y = 0;
+            if (!(cachedVelocity.magnitude > 0.1f)) return;
+
+            var targetAngle = Mathf.Atan2(cachedVelocity.x, cachedVelocity.z) * Mathf.Rad2Deg;
+
+            _calculatedAngle = Mathf.SmoothDampAngle(_calculatedAngle, targetAngle,
+                ref _currentAngleVelocity,
+                0.04f);
+
+            //Apply calculated angle
+            transform.rotation = Quaternion.Euler(0, _calculatedAngle, 0);
         }
 
-        /// <summary>
-        /// Build required data to replicate player input on server
-        /// </summary>
-        /// <returns>Built DroneMoveData</returns>
+        private void ClearState()
+        {
+            _groundContactCount = _steepContactCount = _climbContactCount = 0;
+            _contactNormal = _steepNormal = _climbNormal = Vector3.zero;
+            _connectionVelocity = Vector3.zero;
+            _previousConnectedBody = _connectedBody;
+            _connectedBody = null;
+        }
+
+        private void UpdateState()
+        {
+            _stepsSinceLastGrounded += 1;
+            _stepsSinceLastJump += 1;
+            _velocity = _body.velocity;
+            if (
+                CheckClimbing() || OnGround || SnapToGround() || CheckSteepContacts()
+            )
+            {
+                _stepsSinceLastGrounded = 0;
+                if (_stepsSinceLastJump > 1) _jumpPhase = 0;
+
+                if (_groundContactCount > 1) _contactNormal.Normalize();
+            }
+            else
+            {
+                _contactNormal = _upAxis;
+            }
+
+            if (!_connectedBody) return;
+
+            if (_connectedBody.isKinematic || _connectedBody.mass >= _body.mass) UpdateConnectionState();
+        }
+
+        private void CompensateStairsForce()
+        {
+            if (!Physics.Raycast(_body.position, -_upAxis, out var hit, probeDistance, stairsMask) || !OnGround) return;
+            
+            _stairsForce = ProjectForceOnNormal(_gravity, hit.normal) * (float)TimeManager.TickDelta;
+            _velocity -= _stairsForce;
+        }
+
+        private void UpdateConnectionState()
+        {
+            if (_connectedBody == _previousConnectedBody)
+            {
+                var connectionMovement = _connectedBody.transform.TransformPoint(_connectionLocalPosition) -
+                                         _connectionWorldPosition;
+                _connectionVelocity = connectionMovement / (float)TimeManager.TickDelta;
+            }
+
+            _connectionWorldPosition = _body.position;
+            _connectionLocalPosition = _connectedBody.transform.InverseTransformPoint(_connectionWorldPosition);
+        }
+
+        private bool CheckClimbing()
+        {
+            if (!Climbing) return false;
+
+            if (_climbContactCount > 1)
+            {
+                _climbNormal.Normalize();
+                var upDot = Vector3.Dot(_upAxis, _climbNormal);
+                if (upDot >= _minGroundDotProduct) _climbNormal = _lastClimbNormal;
+            }
+
+            _groundContactCount = 1;
+            _contactNormal = _climbNormal;
+            return true;
+        }
+
+        private bool SnapToGround()
+        {
+            if (_stepsSinceLastGrounded > 1 || _stepsSinceLastJump <= 2) return false;
+
+            var speed = _velocity.magnitude;
+            if (speed > maxSnapSpeed) return false;
+
+            if (!Physics.Raycast(
+                    _body.position, -_upAxis, out var hit,
+                    probeDistance, probeMask
+                ))
+                return false;
+
+            var upDot = Vector3.Dot(_upAxis, hit.normal);
+            if (upDot < GetMinDot(hit.collider.gameObject.layer)) return false;
+
+            _groundContactCount = 1;
+            _contactNormal = hit.normal;
+            var dot = Vector3.Dot(_velocity, hit.normal);
+            if (dot > 0f) _velocity = (_velocity - hit.normal * dot).normalized * speed;
+
+            _connectedBody = hit.rigidbody;
+            return true;
+        }
+
+        private bool CheckSteepContacts()
+        {
+            if (_steepContactCount <= 1) return false;
+
+            _steepNormal.Normalize();
+            var upDot = Vector3.Dot(_upAxis, _steepNormal);
+            if (!(upDot >= _minGroundDotProduct)) return false;
+
+            _steepContactCount = 0;
+            _groundContactCount = 1;
+            _contactNormal = _steepNormal;
+            return true;
+        }
+
+        private void AdjustVelocity(Vector2 playerInput, Vector3 rightAxis, Vector3 forwardAxis)
+        {
+            /*if (Climbing)
+            {
+                acceleration = maxClimbAcceleration;
+                speed = maxClimbSpeed;
+                xAxis = Vector3.Cross(_contactNormal, _upAxis);
+                zAxis = _upAxis;
+            }
+            else
+            {
+                acceleration = OnGround ? maxAcceleration : maxAirAcceleration;
+                speed = OnGround && _desiresClimbing ? maxClimbSpeed : maxSpeed;
+                xAxis = _rightAxis;
+                zAxis = _forwardAxis;
+            }*/
+            //speed = OnGround && _desiresClimbing ? maxClimbSpeed : maxSpeed;
+
+            var acceleration = OnGround ? maxAcceleration : maxAirAcceleration;
+            var speed = maxSpeed;
+            var xAxis = rightAxis;
+            var zAxis = forwardAxis;
+
+            xAxis = ProjectDirectionOnPlane(xAxis, _contactNormal);
+            zAxis = ProjectDirectionOnPlane(zAxis, _contactNormal);
+
+            var relativeVelocity = _velocity - _connectionVelocity;
+            var currentX = Vector3.Dot(relativeVelocity, xAxis);
+            var currentZ = Vector3.Dot(relativeVelocity, zAxis);
+
+            var maxSpeedChange = acceleration * (float)TimeManager.TickDelta;
+
+            var newX = Mathf.MoveTowards(currentX, playerInput.x * speed, maxSpeedChange);
+            var newZ = Mathf.MoveTowards(currentZ, playerInput.y * speed, maxSpeedChange);
+
+            _velocity += xAxis * (newX - currentX) + zAxis * (newZ - currentZ);
+        }
+
+        private void Jump(Vector3 gravity)
+        {
+            Vector3 jumpDirection;
+            if (OnGround)
+            {
+                jumpDirection = _contactNormal;
+            }
+            else if (OnSteep)
+            {
+                jumpDirection = _steepNormal;
+                _jumpPhase = 0;
+            }
+            else if (maxAirJumps > 0 && _jumpPhase <= maxAirJumps)
+            {
+                if (_jumpPhase == 0) _jumpPhase = 1;
+
+                jumpDirection = _contactNormal;
+            }
+            else
+            {
+                return;
+            }
+
+            _stepsSinceLastJump = 0;
+            _jumpPhase += 1;
+            var jumpSpeed = Mathf.Sqrt(2f * gravity.magnitude * jumpHeight);
+            jumpDirection = (jumpDirection + _upAxis).normalized;
+            var alignedSpeed = Vector3.Dot(_velocity, jumpDirection);
+            if (alignedSpeed > 0f) jumpSpeed = Mathf.Max(jumpSpeed - alignedSpeed, 0f);
+
+            _velocity += jumpDirection * jumpSpeed;
+        }
+
+        private void EvaluateCollision(Collision collision)
+        {
+            var layer = collision.gameObject.layer;
+            var minDot = GetMinDot(layer);
+            for (var i = 0; i < collision.contactCount; i++)
+            {
+                var normal = collision.GetContact(i).normal;
+                var upDot = Vector3.Dot(_upAxis, normal);
+                if (upDot >= minDot)
+                {
+                    _groundContactCount += 1;
+                    _contactNormal += normal;
+                    _connectedBody = collision.rigidbody;
+                }
+                else
+                {
+                    if (upDot > -0.01f)
+                    {
+                        _steepContactCount += 1;
+                        _steepNormal += normal;
+                        if (_groundContactCount == 0) _connectedBody = collision.rigidbody;
+                    }
+
+                    if (!_desiresClimbing || !(upDot >= _minClimbDotProduct) ||
+                        (climbMask & (1 << layer)) == 0) continue;
+
+                    _climbContactCount += 1;
+                    _climbNormal += normal;
+                    _lastClimbNormal = normal;
+                    _connectedBody = collision.rigidbody;
+                }
+            }
+        }
+
         private DroneMoveData BuildMoveData()
         {
-            //Work only owner of object
-            if (!IsOwner)
-                return default;
-
-            //Our DroneMoveData require only direction in which player want to move
-            //There is a small problem here. If we play from the gamepad,
-            //it doesn't matter how much we deflect the stick,
-            //the drone will still start moving with maximum acceleration
-            //TODO: Rework move data. Need to add acceleration force support
-            var md = new DroneMoveData(_targetAngle, _movement.magnitude >= 0.1f, _jump, transform.rotation);
+            var md = new DroneMoveData(_playerInput, _desiredJump, _rightAxis, _forwardAxis);
 
             return md;
+        }
+
+        #endregion
+
+        #region UTILS
+
+        private static Vector3 ProjectDirectionOnPlane(Vector3 direction, Vector3 normal)
+        {
+            return (direction - normal * Vector3.Dot(direction, normal)).normalized;
+        }
+
+        private Vector3 ProjectForceOnNormal(Vector3 vector, Vector3 normal)
+        {
+            return vector - normal * Vector3.Dot(vector, normal);
+        }
+
+        private float GetMinDot(int layer)
+        {
+            return (stairsMask & (1 << layer)) == 0 ? _minGroundDotProduct : _minStairsDotProduct;
         }
 
         #endregion
@@ -190,21 +615,21 @@ namespace SEEP.Network.Controllers
         //It is called on the client and server, on the server tick
         private void TimeManager_OnTick()
         {
-            Move(BuildMoveData());
-        }
+            if (base.IsOwner)
+            {
+                Reconciliation(default, false);
+                Move(BuildMoveData(), false);
+            }
 
-        //Called after the server tick
-        private void TimeManager_OnPostTick()
-        {
-            //Works only on server
-            if (!IsServer) return;
-
-            //Build reconcile data, from server
-            var rd = new DroneReconcileData(transform.position, _rigidbody.velocity,
-                _rigidbody.angularVelocity);
-
-            //And send to our clients
-            Reconciliation(rd);
+            if (!base.IsServer) return;
+            Move(default, true);
+            var rd = new DroneReconcileData()
+            {
+                Position = transform.position,
+                Velocity = _body.velocity,
+                Rotation = transform.rotation
+            };
+            Reconciliation(rd, true);
         }
 
         #endregion
@@ -217,13 +642,14 @@ namespace SEEP.Network.Controllers
         {
             base.OnStartNetwork();
 
-            //Caching some components, that required on client
-            _input = GetComponent<DroneInputHandler>();
-            _mainCameraTransform = Camera.main?.transform;
-
             //Subscribing on server tick events
             TimeManager.OnTick += TimeManager_OnTick;
-            TimeManager.OnPostTick += TimeManager_OnPostTick;
+            //TimeManager.OnPostTick += TimeManager_OnPostTick;
+
+            if (OwnerId != ClientManager.Connection.ClientId) return;
+            //Caching some components, that required on client
+            _droneInput = GetComponent<DroneInputHandler>();
+            if (Camera.main != null) playerInputSpace = Camera.main.transform;
         }
 
         //Called only on client, when disconnect from server
@@ -233,96 +659,48 @@ namespace SEEP.Network.Controllers
 
             //Desubscribing from server tick events
             TimeManager.OnTick -= TimeManager_OnTick;
-            TimeManager.OnPostTick -= TimeManager_OnPostTick;
         }
 
-        /// <summary>
-        /// Move drone. Called at the same time on server, and clients. Required for client-side prediction
-        /// </summary>
-        /// <param name="md">Move data</param>
-        /// <param name="state">Check FishNet docs</param>
-        /// <param name="channel">Check FishNet docs</param>
-        [ReplicateV2]
-        private void Move(DroneMoveData md, ReplicateState state = ReplicateState.Invalid,
-            Channel channel = Channel.Unreliable)
+        [Replicate]
+        private void Move(DroneMoveData md, bool asServer, Channel channel = Channel.Unreliable,
+            bool replaying = false)
         {
-            if (!IsOwner)
+            /*if (useCustomGravity)
+                _gravity = CustomGravity.GetGravity(_body.position, out _upAxis);*/
+            RotateObject();
+            UpdateState();
+            AdjustVelocity(md.PlayerInput, md.Right, md.Forward);
+            _gravity = Physics.gravity;
+
+            if (compensateStairsForce)
+                CompensateStairsForce();
+
+            if (md.Jump && jumpingIsEnabled)
             {
-                transform.rotation = md.Rotation;
-                if (state is ReplicateState.ReplayedPredicted or ReplicateState.Predicted)
-                {
-                    uint tick = md.GetTick();
-                    md = _lastMoveData;
-                    md.SetTick(tick);
-                }
-                else
-                {
-                    _lastMoveData = md;
-                }
-            }
-            
-            //If we has a input and we grounded - apply our movement forces
-            if (md.IsMoving && IsGrounded())
-            {
-                //Calculate assigned vector to our smoothed angle
-                var rotatedMovement = Quaternion.Euler(0, md.TargetAngle, 0) * Vector3.forward;
-
-                //And apply him
-                _rigidbody.AddForce(rotatedMovement * accelerationForce, ForceMode.Force);
-
-                //Get velocity of sideways drag
-                var velocity = transform.InverseTransformDirection(_rigidbody.velocity);
-
-                //Apply inverted force of sideways drag according to multiplier
-                _rigidbody.AddForce(transform.right * (-velocity.x * sidewaysDragReduceMultiplier));
-            }
-            //If we have input and we an air
-            else if (md.IsMoving)
-            {
-                //Calculate assigned vector to our smoothed angle
-                var rotatedMovement = Quaternion.Euler(0, md.TargetAngle, 0) * Vector3.forward;
-
-                //And apply him with air movement force
-                _rigidbody.AddForce(rotatedMovement * airAccelerationForce, ForceMode.Force);
-
-                //Get velocity of sideways drag
-                var velocity = transform.InverseTransformDirection(_rigidbody.velocity);
-
-                //Apply inverted force of sideways drag according to multiplier
-                _rigidbody.AddForce(transform.right * (-velocity.x * sidewaysDragReduceMultiplier));
+                _desiredJump = false;
+                Jump(_gravity);
             }
 
-            //If jump requested
-            if (md.Jump)
-            {
-                _rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-                _jump = false;
-            }
+            /*if (Climbing)
+                _velocity -= _contactNormal * (maxClimbAcceleration * 0.9f * (float)TimeManager.TickDelta);
+            else if (OnGround && _velocity.sqrMagnitude < 0.01f)
+                _velocity += _contactNormal * (Vector3.Dot(_gravity, _contactNormal) * (float)TimeManager.TickDelta);
+            else if (_desiresClimbing && OnGround)
+                _velocity += (_gravity - _contactNormal * (maxClimbAcceleration * 0.9f)) * (float)TimeManager.TickDelta;
+            else if (useCustomGravity)
+                _velocity += _gravity * (float)TimeManager.TickDelta;*/
 
-            //Get only horizontal velocity
-            var filteredVelocity = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
-
-            //If horizontal velocity magnitude equal or less then max speed - exit from method
-            if (!(filteredVelocity.magnitude > maxSpeed)) return;
-
-            //Else clamp horizontal velocity
-            filteredVelocity = Vector3.ClampMagnitude(filteredVelocity, maxSpeed);
-
-            //And reapply to our rigidbody
-            _rigidbody.velocity = new Vector3(filteredVelocity.x, _rigidbody.velocity.y, filteredVelocity.z);
+            if (OnGround && _velocity.sqrMagnitude < 0.01f)
+                _velocity += _contactNormal * (Vector3.Dot(_gravity, _contactNormal) * (float)TimeManager.TickDelta);
+            _body.velocity = _velocity;
+            ClearState();
         }
 
-        /// <summary>
-        /// Rollback client status to server status of object if client has a desynchronization from server 
-        /// </summary>
-        /// <param name="rd">Data for reconciliation</param>
-        /// <param name="channel">Check FishNet docs</param>
-        [ReconcileV2]
-        private void Reconciliation(DroneReconcileData rd, Channel channel = Channel.Unreliable)
+        [Reconcile]
+        private void Reconciliation(DroneReconcileData rd, bool asServer, Channel channel = Channel.Unreliable)
         {
-            transform.position = rd.Position;
-            _rigidbody.velocity = rd.Velocity;
-            _rigidbody.angularVelocity = rd.AngularVelocity;
+            transform.SetPositionAndRotation(rd.Position, rd.Rotation);
+            _body.velocity = rd.Velocity;
         }
 
         #endregion
