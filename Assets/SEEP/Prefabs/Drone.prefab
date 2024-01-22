@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3484702785965393990}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 1300937253121271425}
   - component: {fileID: 6835706462882677358}
   - component: {fileID: 7555794335621470430}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -128,7 +128,7 @@ GameObject:
   - component: {fileID: 6572503924768434055}
   - component: {fileID: 8149917833719378477}
   - component: {fileID: 1865001509347692185}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Capsule (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -211,7 +211,7 @@ GameObject:
   - component: {fileID: 6377123319449047737}
   - component: {fileID: 1171613800222258623}
   - component: {fileID: 6942197162483301920}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -294,11 +294,13 @@ GameObject:
   - component: {fileID: 4126584261706925366}
   - component: {fileID: 5008014617898065073}
   - component: {fileID: 3206556033201612041}
-  - component: {fileID: 4904470251100269556}
+  - component: {fileID: 7673505645901409801}
   - component: {fileID: 1347206829637774681}
-  - component: {fileID: 6543143370804320070}
+  - component: {fileID: 4028469034325233222}
   - component: {fileID: 6368025730831865286}
-  m_Layer: 0
+  - component: {fileID: 2518803278196091242}
+  - component: {fileID: 3427730977177623028}
+  m_Layer: 3
   m_Name: Drone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -364,7 +366,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61ed212df80a4d50ae16ed2f67b11da8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!136 &4904470251100269556
+--- !u!136 &7673505645901409801
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -383,7 +385,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.06
+  m_Radius: 0.055
   m_Height: 0.22
   m_Direction: 0
   m_Center: {x: 0, y: 0, z: 0}
@@ -414,7 +416,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 1
---- !u!114 &6543143370804320070
+--- !u!114 &4028469034325233222
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -423,23 +425,38 @@ MonoBehaviour:
   m_GameObject: {fileID: 8903676991870300108}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dea48aecdcc7469fa2b0f5534c18bbe1, type: 3}
+  m_Script: {fileID: 11500000, guid: cb92a99b67c3415e9e83a52a212ce656, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _componentIndexCache: 0
   _addedNetworkObject: {fileID: 6368025730831865286}
   _networkObjectCache: {fileID: 6368025730831865286}
-  jumpForce: 50
-  accelerationForce: 75
-  airAccelerationForce: 15
+  playerInputSpace: {fileID: 0}
+  debugText: {fileID: 0}
+  climbingIsEnabled: 0
   maxSpeed: 4
-  jumpCooldown: 1.9
-  rotationSmoothTime: 0.15
-  sidewaysDragReduceMultiplier: 50
-  distanceToGround: 0.1
-  groundLayer:
+  maxClimbSpeed: 4
+  maxAcceleration: 4
+  maxAirAcceleration: 1
+  maxClimbAcceleration: 40
+  jumpingIsEnabled: 1
+  jumpHeight: 1
+  maxAirJumps: 1
+  compensateStairsForce: 1
+  maxGroundAngle: 25
+  maxStairsAngle: 50
+  maxClimbAngle: 140
+  maxSnapSpeed: 100
+  probeDistance: 0.4
+  probeMask:
     serializedVersion: 2
     m_Bits: 1
+  stairsMask:
+    serializedVersion: 2
+    m_Bits: 64
+  climbMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &6368025730831865286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -453,36 +470,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   NetworkObserver: {fileID: 0}
-  _preconfiguredSmoothingDataPreview:
-    NormalPercent: 1.875
-    CollisionPercent: 0.25
-    CollisionStep: 0.5
-    NormalStep: 0.25
-  <PrefabId>k__BackingField: 9
+  <PrefabId>k__BackingField: 3
   <SpawnableCollectionId>k__BackingField: 0
   _scenePathHash: 0
   <SceneId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 11487064250847848819
   <IsNested>k__BackingField: 0
-  _enablePrediction: 1
-  _predictionType: 1
-  _graphicalObject: {fileID: 3484702785965393990}
-  _enableStateForwarding: 1
-  _ownerInterpolation: 1
-  _enableTeleport: 0
-  _ownerTeleportThreshold: 1
-  _spectatorAdaptiveInterpolation: 1
-  _spectatorInterpolation: 1
-  _adaptiveSmoothingType: 2
-  _customSmoothingData:
-    NormalPercent: 1.25
-    CollisionPercent: 0.125
-    CollisionStep: 0.75
-    NormalStep: 0.25
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
   _networkBehaviours:
-  - {fileID: 6543143370804320070}
+  - {fileID: 4028469034325233222}
+  - {fileID: 2518803278196091242}
   <ParentNetworkObject>k__BackingField: {fileID: 0}
   <ChildNetworkObjects>k__BackingField: []
   SerializedTransformProperties:
@@ -493,3 +491,59 @@ MonoBehaviour:
   _isGlobal: 0
   _initializeOrder: 0
   _defaultDespawnType: 0
+--- !u!114 &2518803278196091242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8903676991870300108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 402926ef33e0a894d9fec352693988ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 1
+  _addedNetworkObject: {fileID: 6368025730831865286}
+  _networkObjectCache: {fileID: 6368025730831865286}
+  _implementsPredictionMethods: 1
+  _graphicalObject: {fileID: 3484702785965393990}
+  _enableTeleport: 0
+  _teleportThreshold: 1
+  _ownerSmoothPosition: 1
+  _ownerSmoothRotation: 1
+  _ownerInterpolation: 3
+  _predictionType: 1
+  _rigidbody: {fileID: 1347206829637774681}
+  _rigidbody2d: {fileID: 0}
+  _spectatorSmoothPosition: 1
+  _spectatorSmoothRotation: 1
+  _spectatorSmoothingType: 0
+  _customSmoothingData:
+    InterpolationPercent: 1
+    CollisionInterpolationPercent: 0.1
+    InterpolationDecreaseStep: 1
+    InterpolationIncreaseStep: 3
+  _preconfiguredSmoothingDataPreview:
+    InterpolationPercent: 0.5
+    CollisionInterpolationPercent: 0.05
+    InterpolationDecreaseStep: 1
+    InterpolationIncreaseStep: 2
+  _maintainedVelocity: 0
+  _resendType: 0
+  _resendInterval: 30
+  _networkTransform: {fileID: 0}
+--- !u!114 &3427730977177623028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8903676991870300108}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c3fb02a6a2a4cb5b48ede6a108fbbfe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  turnSpeed: 5
+  speedThreshold: 0.3
