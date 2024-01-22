@@ -7,14 +7,7 @@ namespace SEEP.Network.Controllers
     {
         public Vector3 Position;
         public Vector3 Velocity;
-        public Vector3 AngularVelocity;
-        public DroneReconcileData(Vector3 position, Vector3 velocity, Vector3 angularVelocity)
-        {
-            Position = position;
-            Velocity = velocity;
-            AngularVelocity = angularVelocity;
-            _tick = 0;
-        }
+        public Quaternion Rotation;
         
         private uint _tick;
         public void Dispose() { }
