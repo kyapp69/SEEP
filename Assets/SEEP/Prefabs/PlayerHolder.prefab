@@ -49,7 +49,7 @@ MonoBehaviour:
   _componentIndexCache: 0
   _addedNetworkObject: {fileID: 2742575218273577731}
   _networkObjectCache: {fileID: 2742575218273577731}
-  dronePrefab: {fileID: 8903676991870300108, guid: 4489f0aaa4e3f34aeb655f9656162c7d,
+  dronePrefab: {fileID: 8903676991870300108, guid: f6424abf65c863857a622b874fc0b7f0,
     type: 3}
   _nickname: 
 --- !u!114 &2742575218273577731
@@ -98,7 +98,7 @@ MonoBehaviour:
   <ParentNetworkObject>k__BackingField: {fileID: 0}
   <ChildNetworkObjects>k__BackingField: []
   SerializedTransformProperties:
-    Position: {x: -6.634244, y: -9.812552, z: -1.3503485}
+    Position: {x: 0, y: 0, z: 0}
     Rotation: {x: 0, y: 0, z: 0, w: 1}
     LocalScale: {x: 1, y: 1, z: 1}
   _isNetworked: 1
