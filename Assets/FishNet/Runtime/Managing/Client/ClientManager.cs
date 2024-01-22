@@ -312,7 +312,10 @@ namespace FishNet.Managing.Client
             {
                 Transport t = NetworkManager.TransportManager.GetTransport(args.TransportIndex);
                 string tName = (t == null) ? "Unknown" : t.GetType().Name;
-                Debug.Log($"Local client is {state.ToString().ToLower()} for {tName}.");
+                string socketInformation = string.Empty;
+                if (state == LocalConnectionState.Starting)
+                    socketInformation = $" Server IP is {t.GetClientAddress()}, port is {t.GetPort()}.";
+                Debug.Log($"Local client is {state.ToString().ToLower()} for {tName}.{socketInformation}");
             }
 
             NetworkManager.UpdateFramerate();
@@ -448,12 +451,6 @@ namespace FishNet.Managing.Client
                     {
                         Objects.ParseRpcLink(reader, (ushort)packetId, channel);
                     }
-#if PREDICTION_V2
-                    else if (packetId == PacketId.StateUpdate)
-                    {
-                        NetworkManager.PredictionManager.ParseStateUpdate(reader);
-                    }
-#endif
                     else if (packetId == PacketId.Replicate)
                     {
                         Objects.ParseReplicateRpc(reader, null, channel);

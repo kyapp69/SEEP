@@ -14,23 +14,11 @@ namespace SEEP.Network
     {
         [SerializeField] private GameObject dronePrefab;
 
-        #region PRIVATE VARIABLES
-
-        [SyncVar(ReadPermissions = ReadPermission.Observers, WritePermissions = WritePermission.ServerOnly,
-            OnChange = nameof(OnChangeNickname), Channel = Channel.Reliable)]
-        private string _nickname;
-
-        private bool _isInitialized;
-        private CinemachineFreeLook _camera;
-
-        #endregion
-
         #region PUBLIC VARIABLES
 
-        public string Nickname
-        {
-            get { return _nickname; }
-        }
+        [field: SyncVar(ReadPermissions = ReadPermission.Observers, WritePermissions = WritePermission.ServerOnly,
+            OnChange = nameof(OnChangeNickname), Channel = Channel.Reliable)]
+        public string Nickname { get; private set; }
 
         #endregion
 
@@ -38,8 +26,15 @@ namespace SEEP.Network
 
         public override string ToString()
         {
-            return $"Player (ID: {OwnerId}, Nick: {_nickname})";
+            return $"Player (ID: {OwnerId}, Nick: {Nickname})";
         }
+
+        #endregion
+
+        #region PRIVATE VARIABLES
+
+        private bool _isInitialized;
+        private CinemachineFreeLook _camera;
 
         #endregion
 
@@ -47,18 +42,13 @@ namespace SEEP.Network
 
         private void ChangeNickname(string newNickname)
         {
-            if (IsClient && IsOwner && ClientManager.Connection.IsActive)
-            {
-                CmdChangeNickname(newNickname);
-            }
+            if (IsClient && IsOwner && ClientManager.Connection.IsActive) CmdChangeNickname(newNickname);
         }
 
         private void RequestToSpawnObject()
         {
             if (IsClient && IsOwner && ClientManager.Connection.IsActive)
-            {
                 CmdSpawnObject(new Vector3(0, 1, 0), Quaternion.identity, Owner);
-            }
         }
 
         #endregion
@@ -94,7 +84,7 @@ namespace SEEP.Network
         [ServerRpc]
         private void CmdChangeNickname(string newNickname)
         {
-            _nickname = newNickname;
+            Nickname = newNickname;
         }
 
         [ServerRpc]
@@ -102,16 +92,16 @@ namespace SEEP.Network
         {
             var clone = Instantiate(dronePrefab, pos, rot);
             ServerManager.Spawn(clone, conn);
-            RpcRegistrateCamera(conn);
+            RpcRegisterCamera(conn);
         }
 
         [TargetRpc]
-        private void RpcRegistrateCamera(NetworkConnection conn)
+        private void RpcRegisterCamera(NetworkConnection conn)
         {
-            var drones = FindObjectsByType<Controllers.DroneController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var drones = FindObjectsByType<DroneController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             var targetDrone = drones.First(x => x.Owner == Owner).transform.GetChild(0);
-            _camera.Follow = targetDrone;
             _camera.LookAt = targetDrone;
+            _camera.Follow = targetDrone;
         }
 
         #endregion
