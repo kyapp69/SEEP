@@ -3466,7 +3466,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &147664144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7574,7 +7574,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &300182900
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7582,7 +7582,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 300182899}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 50405c5dc8ac49e4a86b75f1f54f284c, type: 3}
   m_Name: 
@@ -8696,7 +8696,8 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
-  - component: {fileID: 330585556}
+  - component: {fileID: 330585548}
+  - component: {fileID: 330585549}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -8771,8 +8772,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.18875057, y: -0.68144935, z: 0.18875057, w: 0.68144935}
+  m_LocalPosition: {x: 4.375, y: 0.888, z: -4.151}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8822,7 +8823,32 @@ MonoBehaviour:
     mipBias: 0
     varianceClampScale: 0.9
     contrastAdaptiveSharpening: 0
---- !u!114 &330585556
+--- !u!114 &330585548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9828db2e30f486299d3253d40bedf63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  focus: {fileID: 4696992508047109613}
+  distance: 1
+  focusRadius: 0
+  focusCentering: 0.5
+  rotationSpeed: 90
+  minVerticalAngle: -45
+  maxVerticalAngle: 45
+  alignDelay: 0
+  alignSmoothRange: 0
+  upAlignmentSpeed: 360
+  obstructionMask:
+    serializedVersion: 2
+    m_Bits: 993
+--- !u!114 &330585549
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8835,21 +8861,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showGizmos: 1
-  editorPreview: 0
-  follow: {fileID: 287021212854159127}
-  lookAt: {fileID: 287021212854159127}
+  editorPreview: 1
+  follow: {fileID: 7263575151495447060}
+  lookAt: {fileID: 7263575151495447060}
   topRing:
-    radius: 0.4
-    height: 0.3
+    radius: 0.5
+    height: 0.4
     color: {r: 1, g: 0, b: 0, a: 1}
   middleRing:
-    radius: 0.4
-    height: 0.2
-    color: {r: 1, g: 0.85638046, b: 0, a: 1}
+    radius: 0.5
+    height: 0.3
+    color: {r: 1, g: 0, b: 0, a: 1}
   bottomRing:
-    radius: 0.4
+    radius: 0.5
     height: 0.1
-    color: {r: 0.31961644, g: 1, b: 0, a: 1}
+    color: {r: 1, g: 0, b: 0, a: 1}
   lockHeight: 0
   fixedHeight: 0.5
   lockTranslation: 0
@@ -8857,22 +8883,22 @@ MonoBehaviour:
   avoidClipping: 1
   avoidClippingLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
-  clipDistance: 0.2
+    m_Bits: 193
+  clipDistance: 5
   clippingOffset: 0
   horizontalTilt: 0
   horizontalOffset: 0
   verticalTilt: 0
   verticalOffset: 0
-  useCustomGravity: 1
+  useCustomGravity: 0
   rotationUpAxisSpeed: 0.7
-  customWorldUpAxis: {fileID: 362469436}
+  customWorldUpAxis: {fileID: 0}
   captureCursor: 1
   horizontalAxis: Mouse X
   horizontalSensitivity: 1
   invertX: 0
   verticalAxis: Mouse Y
-  verticalSensitivity: 0.2
+  verticalSensitivity: 0.8
   invertY: 1
 --- !u!1001 &332389896
 PrefabInstance:
@@ -23383,6 +23409,52 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 825489795}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &825852642
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 825852644}
+  - component: {fileID: 825852643}
+  m_Layer: 0
+  m_Name: Gravity (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &825852643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 825852642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50405c5dc8ac49e4a86b75f1f54f284c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gravity: 9.81
+  range: 3.5
+--- !u!4 &825852644
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 825852642}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0}
+  m_LocalScale: {x: 25, y: 25, z: 25}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &826847633
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51717,52 +51789,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1736221474}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1739630154
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1739630156}
-  - component: {fileID: 1739630155}
-  m_Layer: 0
-  m_Name: Gravity
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1739630155
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1739630154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50405c5dc8ac49e4a86b75f1f54f284c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gravity: 9.81
-  range: 0.25
---- !u!4 &1739630156
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1739630154}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4, y: 0.5, z: -4.75}
-  m_LocalScale: {x: 1, y: 1, z: 3}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1745183502
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -62321,7 +62347,7 @@ GameObject:
   - component: {fileID: 7699394151797343620}
   - component: {fileID: 4358269461839381295}
   - component: {fileID: 7699394151797343618}
-  - component: {fileID: 7699394151797343619}
+  - component: {fileID: 7699394151797343621}
   m_Layer: 3
   m_Name: Drone Offline
   m_TagString: Untagged
@@ -62709,53 +62735,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 1
---- !u!114 &7699394151797343619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 287021212854159127}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d8426653521482da2b6d4c6f6d4178d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  movementType: 0
-  maxSpeed: 4
-  enableSnapping: 1
-  maxSnapSpeed: 100
-  maxDistToGround: 0.12
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 1
-  stairsMask:
-    serializedVersion: 2
-    m_Bits: 64
-  enableBoosters: 1
-  boostersMask:
-    serializedVersion: 2
-    m_Bits: 512
-  maxAcceleration: 5
-  maxAirAcceleration: 1
-  reduceSidewaysStrength: 1
-  speedSmoothTime: 0.1
-  boosterAcceleration: 5
-  compensateStairsGravity: 1
-  compensateOnStraightStairs: 0
-  jumpHeight: 1
-  maxAirJumps: 1
-  playerInputSpace: {fileID: 330585546}
-  rotationType: 1
-  rotationSmoothTime: 0.08
-  rotationVelocitySpeed: 0.1
-  rotationVelocityThreshold: 0.1
-  rotationUpAxisSpeed: 0.9
-  maxGroundAngle: 25
-  maxStairsAngle: 65
-  showDebugInfo: 1
-  debugText: {fileID: 693017267}
-  cameraOrientation: {fileID: 362469436}
 --- !u!114 &7699394151797343620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62768,6 +62747,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61ed212df80a4d50ae16ed2f67b11da8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7699394151797343621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 287021212854159127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1690afbcfa9a427d8ad2c5e3a854eb11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInputSpace: {fileID: 330585546}
+  useCustomGravity: 0
+  climbingIsEnabled: 0
+  maxSpeed: 4
+  maxClimbSpeed: 4
+  maxAcceleration: 10
+  maxAirAcceleration: 1
+  maxClimbAcceleration: 40
+  jumpingIsEnabled: 0
+  jumpHeight: 1
+  maxAirJumps: 0
+  compensateStairsForce: 0
+  groundMovingIsEnabled: 0
+  maxGroundAngle: 25
+  maxStairsAngle: 60
+  maxClimbAngle: 140
+  maxSnapSpeed: 100
+  probeDistance: 0.12
+  probeMask:
+    serializedVersion: 2
+    m_Bits: 1
+  stairsMask:
+    serializedVersion: 2
+    m_Bits: 64
+  climbMask:
+    serializedVersion: 2
+    m_Bits: 1
+  rotationType: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -62779,9 +62798,9 @@ SceneRoots:
   - {fileID: 4696992508047109613}
   - {fileID: 517994265}
   - {fileID: 15126698}
-  - {fileID: 1739630156}
   - {fileID: 300182901}
   - {fileID: 147664145}
+  - {fileID: 825852644}
   - {fileID: 707982718}
   - {fileID: 330585546}
   - {fileID: 362469436}
