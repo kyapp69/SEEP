@@ -24,7 +24,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Climb",
+                    "name": "Interact",
                     "type": "Button",
                     "id": "29cc1163-04fd-4304-a7e0-cb0fcc845532",
                     "expectedControlType": "Button",
@@ -169,11 +169,11 @@
                 {
                     "name": "",
                     "id": "03c339b6-5342-412e-bd93-8fe7fbf631fd",
-                    "path": "<Keyboard>/leftShift",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Climb",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

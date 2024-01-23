@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/SEEP/Scenes/SampleScene 1.unity
     guid: 6a27ef49c101aa9c08df4d38a7211049
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: a7e666af52ee9304f9c007cfc7f2e8e0,
+      type: 2}
+  m_UseUCBPForAssetBundles: 0

@@ -136,7 +136,7 @@ namespace SEEP.Offline
                 _forwardAxis = ProjectDirectionOnPlane(Vector3.forward, _upAxis);
             }
 
-            //desiresClimbing = Input.GetButton("Climb");
+            //desiresClimbing = Input.GetButton("Interact");
             _desiresClimbing = false;
             RotateObject();
         }
