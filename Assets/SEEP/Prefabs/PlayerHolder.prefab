@@ -51,7 +51,9 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 2742575218273577731}
   dronePrefab: {fileID: 8903676991870300108, guid: f6424abf65c863857a622b874fc0b7f0,
     type: 3}
-  _nickname: 
+  cubePrefab: {fileID: 4675778706487570998, guid: 8570444b6b70f77a49c468b558317fba,
+    type: 3}
+  <Nickname>k__BackingField: 
 --- !u!114 &2742575218273577731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -65,32 +67,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   NetworkObserver: {fileID: 0}
-  _preconfiguredSmoothingDataPreview:
-    NormalPercent: 0.625
-    CollisionPercent: 0.0625
-    CollisionStep: 1
-    NormalStep: 0.25
   <PrefabId>k__BackingField: 0
   <SpawnableCollectionId>k__BackingField: 0
   _scenePathHash: 0
   <SceneId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 11080333664178651717
   <IsNested>k__BackingField: 0
-  _enablePrediction: 0
-  _predictionType: 0
-  _graphicalObject: {fileID: 0}
-  _enableStateForwarding: 1
-  _ownerInterpolation: 1
-  _enableTeleport: 0
-  _ownerTeleportThreshold: 1
-  _spectatorAdaptiveInterpolation: 1
-  _spectatorInterpolation: 1
-  _adaptiveSmoothingType: 0
-  _customSmoothingData:
-    NormalPercent: 1.25
-    CollisionPercent: 0.125
-    CollisionStep: 0.75
-    NormalStep: 0.25
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
   _networkBehaviours:

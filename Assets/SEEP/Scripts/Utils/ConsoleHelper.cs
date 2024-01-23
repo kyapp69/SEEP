@@ -56,6 +56,12 @@ namespace SEEP.Utils
                 helpText: "Spawn drone to your player",
                 callback: _clientController.ConsoleSpawnDrone
             ));
+            DevConsole.AddCommand(Command.Create(
+                name: "cube",
+                aliases: "spawncube",
+                helpText: "Spawn cube to your player",
+                callback: _clientController.ConsoleSpawnCube
+            ));
 #endif
         }
     }

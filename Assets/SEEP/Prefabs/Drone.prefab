@@ -299,7 +299,6 @@ GameObject:
   - component: {fileID: 4028469034325233222}
   - component: {fileID: 6368025730831865286}
   - component: {fileID: 2518803278196091242}
-  - component: {fileID: 3427730977177623028}
   m_Layer: 3
   m_Name: Drone
   m_TagString: Untagged
@@ -533,17 +532,3 @@ MonoBehaviour:
   _resendType: 0
   _resendInterval: 30
   _networkTransform: {fileID: 0}
---- !u!114 &3427730977177623028
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8903676991870300108}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c3fb02a6a2a4cb5b48ede6a108fbbfe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  turnSpeed: 5
-  speedThreshold: 0.3

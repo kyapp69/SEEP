@@ -13,6 +13,7 @@ namespace SEEP.Network
     public class ClientController : NetworkBehaviour
     {
         [SerializeField] private GameObject dronePrefab;
+        [SerializeField] private GameObject cubePrefab;
 
         #region PUBLIC VARIABLES
 
@@ -45,10 +46,10 @@ namespace SEEP.Network
             if (IsClient && IsOwner && ClientManager.Connection.IsActive) CmdChangeNickname(newNickname);
         }
 
-        private void RequestToSpawnObject()
+        private void RequestToSpawnObject(GameObject gameObject)
         {
             if (IsClient && IsOwner && ClientManager.Connection.IsActive)
-                CmdSpawnObject(new Vector3(0, 1, 0), Quaternion.identity, Owner);
+                CmdSpawnObject(new Vector3(0, 1, 0), Quaternion.identity, Owner, gameObject);
         }
 
         #endregion
@@ -88,9 +89,9 @@ namespace SEEP.Network
         }
 
         [ServerRpc]
-        private void CmdSpawnObject(Vector3 pos, Quaternion rot, NetworkConnection conn)
+        private void CmdSpawnObject(Vector3 pos, Quaternion rot, NetworkConnection conn, GameObject gameObject)
         {
-            var clone = Instantiate(dronePrefab, pos, rot);
+            var clone = Instantiate(gameObject, pos, rot);
             ServerManager.Spawn(clone, conn);
             RpcRegisterCamera(conn);
         }
@@ -117,7 +118,12 @@ namespace SEEP.Network
 
         public void ConsoleSpawnDrone()
         {
-            RequestToSpawnObject();
+            RequestToSpawnObject(dronePrefab);
+        }
+        
+        public void ConsoleSpawnCube()
+        {
+            RequestToSpawnObject(cubePrefab);
         }
 
         #endregion
