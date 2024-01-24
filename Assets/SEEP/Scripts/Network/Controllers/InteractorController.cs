@@ -69,6 +69,7 @@ namespace SEEP.Network.Controllers
 
             _typewriter = textChild.GetComponent<Typewriter>();
             _typewriter.SetTargetTextMesh(_pointerText);
+            _typewriter.Animate();
             
             _isInitialized = true;
             yield return null;
@@ -133,7 +134,7 @@ namespace SEEP.Network.Controllers
             
             _isBehind = !IsObjectInCameraView();
 
-            if (!_isVisible) return;
+            if (!_isVisible || _isBehind) return;
 
             // Limit the X and Y positions
             pos.x = Mathf.Clamp(pos.x, minX, maxX);
