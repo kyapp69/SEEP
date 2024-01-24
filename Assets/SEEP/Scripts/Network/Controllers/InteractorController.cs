@@ -4,7 +4,9 @@ using DG.Tweening;
 using SEEP.InputHandlers;
 using TMPro;
 using UnityEngine;
+using SEEP.Utils.Typewriter;
 using UnityEngine.UI;
+using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.Network.Controllers
 {
@@ -15,21 +17,26 @@ namespace SEEP.Network.Controllers
         [SerializeField, Range(0.1f, 5f)] private float interactiveRange = 0.5f;
         [SerializeField] private int bufferSize = 3;
         [SerializeField] private float smoothTime = 0.1f;
-        [SerializeField] public Vector3 markerOffset;
 
         private bool _isInitialized;
+        private bool _isVisible;
         
         private DroneInputHandler _inputHandler;
+        
         private Collider[] _colliders;
         private int _interactableObjectsCount;
-        private GameObject _closestInteractable;
-        private Vector3 _startPointerSize;
+        private GameObject _closestInteractableObject;
+        private IInteractable _interactable;
+        private bool _isBehind;
+
+        private Tweener _tweener;
+        
         private GameObject _marker;
-        private RectTransform _pointerTransform;
         private Image _pointerImage;
-        private Sprite _forwardPointer;
-        private Sprite _sidePointer;
         private TextMeshProUGUI _pointerText;
+        private string _currentText;
+        private Typewriter _typewriter;
+        private Coroutine _changeTextCoroutine;
 
         private Vector3 _calculatedVelocity;
 
@@ -44,15 +51,17 @@ namespace SEEP.Network.Controllers
             _marker = Resources.Load<GameObject>("Interact");
             _marker = Instantiate(_marker, canvas);
             
-            _pointerTransform = _marker.GetComponent<RectTransform>();
+            _marker.GetComponent<RectTransform>();
             _pointerImage = _marker.GetComponent<Image>();
+            _pointerImage.color = new Color(255, 255, 255, 0);
 
             var textChild = _marker.transform.GetChild(0);
             _pointerText = textChild.GetComponent<TextMeshProUGUI>();
+            _pointerText.color = new Color(255, 255, 255, 0);
 
-            _startPointerSize = _pointerTransform.sizeDelta;
-            _sidePointer = Resources.Load<Sprite>("UI/SidePointer");
-            _forwardPointer = Resources.Load<Sprite>("UI/ForwardPointer");
+            _typewriter = textChild.GetComponent<Typewriter>();
+            _typewriter.SetTargetTextMesh(_pointerText);
+            
             _isInitialized = true;
             yield return null;
         }
@@ -66,70 +75,80 @@ namespace SEEP.Network.Controllers
 
             if (_interactableObjectsCount <= 0)
             {
-                _marker.SetActive(false);
+                ChangeVisibility(false);
                 return;
             }
 
-            _marker.SetActive(true);
+            ChangeVisibility(true);
 
-            _closestInteractable = _colliders.OrderBy(obj =>
+            _closestInteractableObject = _colliders.OrderBy(obj =>
                 obj ? Vector3.Distance(obj.transform.position, transform.position) : Mathf.Infinity
             ).First().gameObject;
             
-            if (!_inputHandler.Interact) return;
+            _interactable = _closestInteractableObject.GetComponent<IInteractable>();
+            
+            ChangeVisibility(!_isBehind);
+            
+            if (!_inputHandler.Interact || _isBehind) return;
 
-            _closestInteractable.GetComponent<IInteractable>().Interact(this);
+            _interactable.Interact(this);
+        }
+
+        private void ChangeVisibility(bool newState)
+        {
+            if (_isVisible == newState) return;
+
+            _tweener?.Kill();
+
+            _isVisible = newState;
+            
+            if(!_isVisible)
+                _typewriter.Stop();
+            _tweener = DOVirtual.Float(_pointerImage.color.a, _isVisible ? 1f : 0f, smoothTime, value =>
+            {
+                var tempColor = new Color(255, 255, 255, value);
+                _pointerImage.color = tempColor;
+                _pointerText.color = tempColor;
+            });
         }
         
         private void LateUpdate()
         {
             if (!_isInitialized || _interactableObjectsCount <= 0) return;
-            
-            // Giving limits to the icon so it sticks on the screen
-            // Below calculations witht the assumption that the icon anchor point is in the middle
-            // Minimum X position: half of the icon width
+
             var minX = _pointerImage.GetPixelAdjustedRect().width / 2;
-            // Maximum X position: screen width - half of the icon width
             var maxX = Screen.width - minX;
-
-            // Minimum Y position: half of the height
             var minY = _pointerImage.GetPixelAdjustedRect().height / 2;
-            // Maximum Y position: screen height - half of the icon height
             var maxY = Screen.height - minY;
-
-            // Temporary variable to store the converted position from 3D world point to 2D screen point
-            var realPos = _camera.WorldToScreenPoint(_closestInteractable.transform.position );
+            var realPos = _camera.WorldToScreenPoint(_closestInteractableObject.transform.position );
             var pos = realPos;
+            
+            _isBehind = !IsObjectInCameraView();
 
-            // Check if the target is behind us, to only show the icon once the target is in front
-            if(Vector3.Dot((_closestInteractable.transform.position - _camera.transform.position), _camera.transform.forward) < 0)
-            {
-               // _pointerImage.sprite = _sidePointer;
-                // Check if the target is on the left side of the screen
-                // Place it on the right (Since it's behind the player, it's the opposite)
-                pos.x = pos.x < Screen.width / 2 ? maxX : minX;
-            }
-            /*else
-            {
-                _pointerImage.sprite = _forwardPointer;
-            }*/
+            if (!_isVisible) return;
 
             // Limit the X and Y positions
             pos.x = Mathf.Clamp(pos.x, minX, maxX);
             pos.y = Mathf.Clamp(pos.y, minY, maxY);
             
-            //_pointerTransform.rotation = RotatePointer(1 * realPos - pos);
-
-            // Update the marker's position
             _pointerImage.transform.position = Vector3.SmoothDamp(_pointerImage.transform.position, pos, ref _calculatedVelocity, smoothTime);;
-            // Change the meter text to the distance with the meter unit 'm'
-            //meter.text = ((int)Vector3.Distance(target.position, transform.position)).ToString() + "m";
+            var interactorText = _interactable.GetMessage();
+
+            if (_currentText == interactorText) return;
+            
+            if(_typewriter.IsWorking)
+                _typewriter.Stop();
+
+            _currentText = interactorText;
+            _typewriter.Animate(interactorText);
         }
         
-        private static Quaternion RotatePointer(Vector2 direction) // поворачивает PointerUI в направление direction
-        {		
-            var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            return Quaternion.AngleAxis(angle, Vector3.forward);
+        private bool IsObjectInCameraView()
+        {
+            var directionToObject = _closestInteractableObject.transform.position - _camera.transform.position;
+            var angleToObject = Vector3.Angle(_camera.transform.forward, directionToObject);
+
+            return angleToObject <= _camera.fieldOfView / 1.5f;
         }
     }
 }
