@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Linq;
 using DG.Tweening;
+using FishNet.Object;
 using SEEP.InputHandlers;
 using TMPro;
 using UnityEngine;
 using SEEP.Utils.Typewriter;
 using UnityEngine.UI;
-using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.Network.Controllers
 {
@@ -44,6 +44,14 @@ namespace SEEP.Network.Controllers
 
         private IEnumerator Start()
         {
+            if (TryGetComponent<NetworkBehaviour>(out var networkController))
+            {
+                if (!networkController.Owner.IsLocalClient)
+                {
+                    Destroy(this);
+                    yield return null;
+                }
+            }
             _camera = Camera.main;
             _inputHandler = GetComponent<DroneInputHandler>();
             _colliders = new Collider[bufferSize];

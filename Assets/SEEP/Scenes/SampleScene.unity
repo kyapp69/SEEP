@@ -2751,7 +2751,7 @@ Transform:
   m_GameObject: {fileID: 74534373}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.2133574, y: 0.135, z: -5.467}
+  m_LocalPosition: {x: 3.2133574, y: -0.21060987, z: -5.467}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -6024,7 +6024,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 166490564}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.22120775, y: -1e-45, z: -0, w: 0.97522676}
+  m_LocalRotation: {x: 0.22120774, y: 0.000000008390268, z: -0.0000000019031394, w: 0.97522676}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -10086,7 +10086,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.26857775, y: -0.000000016574186, z: 0.000000004621252, w: 0.96325797}
+  m_LocalRotation: {x: 0.26857775, y: 0.000000016574138, z: -0.000000004621239, w: 0.96325797}
   m_LocalPosition: {x: 0, y: -0.13999999, z: -0.39999998}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -10514,7 +10514,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 344443791}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.31622773, y: 0.00000001632341, z: -0.000000005441137, w: 0.9486833}
+  m_LocalRotation: {x: 0.31622773, y: -0.000000016932523, z: 0.0000000056441745, w: 0.9486833}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -13159,6 +13159,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8883ab38ef046619075cfe7b8291063, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  message: ALSO SWITCH
   callback:
     m_PersistentCalls:
       m_Calls:
@@ -13256,7 +13257,7 @@ Transform:
   m_GameObject: {fileID: 421624142}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.541, y: 0.007609874, z: -5.018701}
+  m_LocalPosition: {x: 3.541, y: -0.338, z: -5.018701}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -18602,7 +18603,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 594933780}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.26857772, y: -0.000000016574184, z: 0.0000000046212505, w: 0.963258}
+  m_LocalRotation: {x: 0.26857772, y: 0.00000001657414, z: -0.000000004621237, w: 0.963258}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -25340,7 +25341,7 @@ Transform:
   m_GameObject: {fileID: 818953753}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.2133574, y: 0.135, z: -5.018701}
+  m_LocalPosition: {x: 3.2133574, y: -0.21060987, z: -5.018701}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -27434,6 +27435,7 @@ GameObject:
   - component: {fileID: 896824397}
   - component: {fileID: 896824399}
   - component: {fileID: 896824398}
+  - component: {fileID: 896824400}
   m_Layer: 5
   m_Name: Debug
   m_TagString: Untagged
@@ -27480,7 +27482,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: <jitter speed=20>sdgsdgsdsdfsdf</jitter>
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -27559,6 +27561,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 896824396}
   m_CullTransparentMesh: 1
+--- !u!114 &896824400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 896824396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 921b0afcc11a985478365cfbe9e24dcd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  charRevealTime: 0.05
+  defaultCaretDelay: 0.02
+  _targetTextMesh: {fileID: 0}
+  typingNotifiables: []
 --- !u!1001 &900313541
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -46991,7 +47009,8 @@ GameObject:
   - component: {fileID: 1571346255}
   - component: {fileID: 1571346254}
   - component: {fileID: 1571346253}
-  - component: {fileID: 1571346252}
+  - component: {fileID: 1571346258}
+  - component: {fileID: 1571346257}
   m_Layer: 10
   m_Name: Button (1)
   m_TagString: Untagged
@@ -46999,33 +47018,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1571346252
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1571346251}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8883ab38ef046619075cfe7b8291063, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  callback:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 74534374}
-        m_TargetAssemblyTypeName: SEEP.Offline.Lighter, Scripts
-        m_MethodName: Switch
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!65 &1571346253
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -47108,12 +47100,76 @@ Transform:
   m_GameObject: {fileID: 1571346251}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.541, y: 0.007609874, z: -5.467}
+  m_LocalPosition: {x: 3.541, y: -0.338, z: -5.467}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1571346257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571346251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26b716c41e9b56b4baafaf13a523ba2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NetworkObserver: {fileID: 0}
+  <PrefabId>k__BackingField: 0
+  <SpawnableCollectionId>k__BackingField: 0
+  _scenePathHash: 1932644756
+  <SceneId>k__BackingField: 8300646022577660806
+  <AssetPathHash>k__BackingField: 0
+  <IsNested>k__BackingField: 0
+  <ComponentIndex>k__BackingField: 0
+  <PredictedSpawn>k__BackingField: {fileID: 0}
+  _networkBehaviours:
+  - {fileID: 1571346258}
+  <ParentNetworkObject>k__BackingField: {fileID: 0}
+  <ChildNetworkObjects>k__BackingField: []
+  SerializedTransformProperties:
+    Position: {x: 3.541, y: -0.338, z: -5.467}
+    Rotation: {x: 0, y: 0, z: 0, w: 1}
+    LocalScale: {x: 0.2, y: 0.2, z: 0.2}
+  _isNetworked: 1
+  _isGlobal: 0
+  _initializeOrder: 0
+  _defaultDespawnType: 0
+--- !u!114 &1571346258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571346251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b601bd016cb4b9a9bc899971e2478da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 0
+  _addedNetworkObject: {fileID: 1571346257}
+  _networkObjectCache: {fileID: 1571346257}
+  message: NET SWITCH
+  callback:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 74534374}
+        m_TargetAssemblyTypeName: SEEP.Offline.Lighter, Scripts
+        m_MethodName: Switch
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &1573777653
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -49892,10 +49948,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
