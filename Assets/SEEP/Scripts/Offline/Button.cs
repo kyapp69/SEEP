@@ -1,8 +1,8 @@
-using System;
+using SEEP.Network.Controllers;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace SEEP.Network.Controllers
+namespace SEEP.Offline
 {
     public class Button : MonoBehaviour, IInteractable
     {

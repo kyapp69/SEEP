@@ -1,9 +1,10 @@
 using FishNet.Object;
+using SEEP.Network.Controllers;
+using SEEP.Offline;
 using UnityEngine;
 using UnityEngine.Events;
-using Logger = SEEP.Utils.Logger;
 
-namespace SEEP.Network.Controllers
+namespace SEEP.Network
 {
     public class NetworkTrigger : NetworkBehaviour, IInteractable
     {
