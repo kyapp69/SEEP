@@ -16,22 +16,40 @@ namespace SEEP.InputHandlers
 
         private Vector2 _control;
         private bool _jump;
+        private bool _isJumpHolding;
         private bool _interact;
-        private bool _isClimbHolding;
+        private bool _isInteractHolding;
 
         public Vector2 Control => _control;
-        public bool Jump => _jump;
+        public bool Jump
+        {
+            get
+            {
+                if (_isJumpHolding)
+                {
+                    return false;
+                }
+                if (_jump && !_isJumpHolding)
+                {
+                    _isJumpHolding = true;
+                }
+
+                return _jump;
+            }
+        }
+
+        public bool HoldedJump => _jump;
         public bool Interact
         {
             get
             {
-                if (_isClimbHolding)
+                if (_isInteractHolding)
                 {
                     return false;
                 }
-                if (_interact && !_isClimbHolding)
+                if (_interact && !_isInteractHolding)
                 {
-                    _isClimbHolding = true;
+                    _isInteractHolding = true;
                 }
 
                 return _interact;
@@ -68,12 +86,14 @@ namespace SEEP.InputHandlers
         {
             _interact = obj.ReadValueAsButton();
             if (!_interact)
-                _isClimbHolding = false;
+                _isInteractHolding = false;
         }
 
         private void JumpAction(InputAction.CallbackContext obj)
         {
             _jump = obj.ReadValueAsButton();
+            if (!_jump)
+                _isJumpHolding = false;
         }
 
         private void ControlAction(InputAction.CallbackContext obj)

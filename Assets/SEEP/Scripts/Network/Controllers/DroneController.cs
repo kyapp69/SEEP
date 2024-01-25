@@ -6,6 +6,7 @@ using NaughtyAttributes;
 using SEEP.InputHandlers;
 using TMPro;
 using UnityEngine;
+using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.Network.Controllers
 {
@@ -21,8 +22,6 @@ namespace SEEP.Network.Controllers
         /// A transform that is used to transform the player's input. This is usually an attached camera
         /// </summary>
         [SerializeField] private Transform playerInputSpace;
-
-        [SerializeField] private TextMeshProUGUI debugText;
 
         /*
          * [SerializedField] private bool useCustomGravity;
@@ -289,7 +288,6 @@ namespace SEEP.Network.Controllers
         {
             _body = GetComponent<Rigidbody>();
             _droneInput = GetComponent<DroneInputHandler>();
-            debugText = FindObjectOfType<TextMeshProUGUI>();
             _upAxis = Vector3.up;
             _gravity = Physics.gravity;
             OnValidate();
@@ -316,7 +314,6 @@ namespace SEEP.Network.Controllers
                 _forwardAxis = ProjectDirectionOnPlane(Vector3.forward, _upAxis);
             }
 
-            debugText.text = $"{_stairsForce:f3}";
             _desiresClimbing = false;
         }
 
@@ -404,7 +401,7 @@ namespace SEEP.Network.Controllers
         private void CompensateStairsForce()
         {
             if (!Physics.Raycast(_body.position, -_upAxis, out var hit, probeDistance, stairsMask) || !OnGround) return;
-            
+
             _stairsForce = ProjectForceOnNormal(_gravity, hit.normal) * (float)TimeManager.TickDelta;
             _velocity -= _stairsForce;
         }
@@ -517,6 +514,7 @@ namespace SEEP.Network.Controllers
 
         private void Jump(Vector3 gravity)
         {
+            Logger.Log(this, $"Try jump on client: {IsClient}. On host: {IsHost}. On Ground: {OnGround} On steep: {OnSteep}. Jump Phase: {_jumpPhase}");
             Vector3 jumpDirection;
             if (OnGround)
             {
@@ -529,7 +527,10 @@ namespace SEEP.Network.Controllers
             }
             else if (maxAirJumps > 0 && _jumpPhase <= maxAirJumps)
             {
-                if (_jumpPhase == 0) _jumpPhase = 1;
+                if (_jumpPhase == 0)
+                {
+                    _jumpPhase = 1;
+                }
 
                 jumpDirection = _contactNormal;
             }
@@ -543,7 +544,10 @@ namespace SEEP.Network.Controllers
             var jumpSpeed = Mathf.Sqrt(2f * gravity.magnitude * jumpHeight);
             jumpDirection = (jumpDirection + _upAxis).normalized;
             var alignedSpeed = Vector3.Dot(_velocity, jumpDirection);
-            if (alignedSpeed > 0f) jumpSpeed = Mathf.Max(jumpSpeed - alignedSpeed, 0f);
+            if (alignedSpeed > 0f)
+            {
+                jumpSpeed = Mathf.Max(jumpSpeed - alignedSpeed, 0f);
+            }
 
             _velocity += jumpDirection * jumpSpeed;
         }
