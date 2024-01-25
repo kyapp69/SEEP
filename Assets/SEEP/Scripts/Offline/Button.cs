@@ -1,6 +1,10 @@
+using FishNet;
+using FishNet.Transporting;
 using SEEP.Network.Controllers;
+using SEEP.Offline.Interfaces;
 using UnityEngine;
 using UnityEngine.Events;
+using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.Offline
 {
