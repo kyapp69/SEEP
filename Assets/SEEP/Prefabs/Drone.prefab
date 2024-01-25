@@ -308,7 +308,7 @@ GameObject:
   - component: {fileID: 2518803278196091242}
   m_Layer: 3
   m_Name: Drone
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -439,10 +439,7 @@ MonoBehaviour:
     m_Bits: 1024
   interactiveRange: 1
   bufferSize: 3
-  markerImage: {fileID: 21300000, guid: 40d437b5336dc81ecafa31e7e8de7814, type: 3}
-  markerSize: {x: 100, y: 100}
-  interactText: {fileID: 0}
-  markerOffset: {x: 0, y: 0, z: 0}
+  smoothTime: 0.1
 --- !u!114 &4028469034325233222
 MonoBehaviour:
   m_ObjectHideFlags: 0
