@@ -534,8 +534,8 @@ namespace FishNet.Managing.Timing
                 //Preserve user tick rate.
                 PlayerPrefs.SetFloat(SAVED_FIXED_TIME_TEXT, Time.fixedDeltaTime);
                 //Let the player know.
-                if (Time.fixedDeltaTime != (float)TickDelta)
-                    Debug.LogWarning("Time.fixedDeltaTime is being overriden with TimeManager.TickDelta");
+                /*if (Time.fixedDeltaTime != (float)TickDelta)
+                    Debug.LogWarning("Time.fixedDeltaTime is being overriden with TimeManager.TickDelta");*/
 #endif
                 Time.fixedDeltaTime = (float)TickDelta;
                 /* Only check this if network manager
