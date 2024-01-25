@@ -4,6 +4,7 @@ using DG.Tweening;
 using FishNet.Object;
 using SEEP.InputHandlers;
 using SEEP.Offline;
+using SEEP.Offline.Interfaces;
 using TMPro;
 using UnityEngine;
 using SEEP.Utils.Typewriter;

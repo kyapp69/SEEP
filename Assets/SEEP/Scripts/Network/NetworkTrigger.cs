@@ -1,6 +1,7 @@
 using FishNet.Object;
 using SEEP.Network.Controllers;
 using SEEP.Offline;
+using SEEP.Offline.Interfaces;
 using UnityEngine;
 using UnityEngine.Events;
 
