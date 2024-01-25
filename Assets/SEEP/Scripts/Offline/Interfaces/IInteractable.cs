@@ -1,6 +1,6 @@
 using SEEP.Network.Controllers;
 
-namespace SEEP.Offline
+namespace SEEP.Offline.Interfaces
 {
     public interface IInteractable
     {
