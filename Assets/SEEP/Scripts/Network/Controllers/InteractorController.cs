@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using DG.Tweening;
@@ -9,6 +10,7 @@ using TMPro;
 using UnityEngine;
 using SEEP.Utils.Typewriter;
 using UnityEngine.UI;
+using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.Network.Controllers
 {
@@ -22,17 +24,20 @@ namespace SEEP.Network.Controllers
 
         private bool _isInitialized;
         private bool _isVisible;
-        
+
         private DroneInputHandler _inputHandler;
-        
+
         private Collider[] _colliders;
         private int _interactableObjectsCount;
         private GameObject _closestInteractableObject;
         private IInteractable _interactable;
+        private InteractableType _interactableType;
         private bool _isBehind;
+        private bool _isPlayerInTriggerZone;
+        private bool _interactedInZone;
 
         private Tweener _tweener;
-        
+
         private GameObject _marker;
         private Image _pointerImage;
         private TextMeshProUGUI _pointerText;
@@ -54,13 +59,14 @@ namespace SEEP.Network.Controllers
                     yield return null;
                 }
             }
+
             _camera = Camera.main;
             _inputHandler = GetComponent<DroneInputHandler>();
             _colliders = new Collider[bufferSize];
             var canvas = GameObject.FindGameObjectWithTag("Player UI").transform;
             _marker = Resources.Load<GameObject>("Interact");
             _marker = Instantiate(_marker, canvas);
-            
+
             _marker.GetComponent<RectTransform>();
             _pointerImage = _marker.GetComponent<Image>();
             _pointerImage.color = new Color(255, 255, 255, 0);
@@ -72,15 +78,30 @@ namespace SEEP.Network.Controllers
             _typewriter = textChild.GetComponent<Typewriter>();
             _typewriter.SetTargetTextMesh(_pointerText);
             _typewriter.Animate();
-            
+
             _isInitialized = true;
             yield return null;
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.gameObject != _closestInteractableObject) return;
+
+            _isPlayerInTriggerZone = true;
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.gameObject != _closestInteractableObject) return;
+
+            _isPlayerInTriggerZone = false;
+            _interactedInZone = false;
         }
 
         private void Update()
         {
             if (!_isInitialized) return;
-            
+
             _interactableObjectsCount =
                 Physics.OverlapSphereNonAlloc(transform.position, interactiveRange, _colliders, interactableLayer);
 
@@ -95,14 +116,32 @@ namespace SEEP.Network.Controllers
             _closestInteractableObject = _colliders.OrderBy(obj =>
                 obj ? Vector3.Distance(obj.transform.position, transform.position) : Mathf.Infinity
             ).First().gameObject;
-            
-            _interactable = _closestInteractableObject.GetComponent<IInteractable>();
-            
-            ChangeVisibility(!_isBehind);
-            
-            if (!_inputHandler.Interact || _isBehind) return;
 
-            _interactable.Interact(this);
+            _interactable = _closestInteractableObject.GetComponent<IInteractable>();
+            _interactableType = _interactable.GetInteractableType();
+
+            switch (_interactableType)
+            {
+                case InteractableType.Object:
+                    ChangeVisibility(!_isBehind);
+
+                    if (!_inputHandler.Interact || _isBehind) return;
+
+                    _interactable.Interact(this);
+                    break;
+                case InteractableType.Zone:
+                    ChangeVisibility(false);
+                    if (_isPlayerInTriggerZone && !_interactedInZone)
+                    {
+                        _interactable.Interact(this);
+                        _interactedInZone = true;
+                    }
+
+                    break;
+                default:
+                    Logger.Error(this, "Unexpected interactable type");
+                    break;
+            }
         }
 
         private void ChangeVisibility(bool newState)
@@ -112,8 +151,8 @@ namespace SEEP.Network.Controllers
             _tweener?.Kill();
 
             _isVisible = newState;
-            
-            if(!_isVisible)
+
+            if (!_isVisible)
                 _typewriter.Stop();
             _tweener = DOVirtual.Float(_pointerImage.color.a, _isVisible ? 1f : 0f, smoothTime, value =>
             {
@@ -122,7 +161,7 @@ namespace SEEP.Network.Controllers
                 _pointerText.color = tempColor;
             });
         }
-        
+
         private void LateUpdate()
         {
             if (!_isInitialized || _interactableObjectsCount <= 0) return;
@@ -131,29 +170,31 @@ namespace SEEP.Network.Controllers
             var maxX = Screen.width - minX;
             var minY = _pointerImage.GetPixelAdjustedRect().height / 2;
             var maxY = Screen.height - minY;
-            var realPos = _camera.WorldToScreenPoint(_closestInteractableObject.transform.position );
+            var realPos = _camera.WorldToScreenPoint(_closestInteractableObject.transform.position);
             var pos = realPos;
-            
+
             _isBehind = !IsObjectInCameraView();
 
-            if (!_isVisible || _isBehind) return;
+            if (!_isVisible || _isBehind || _interactableType == InteractableType.Zone) return;
 
             // Limit the X and Y positions
             pos.x = Mathf.Clamp(pos.x, minX, maxX);
             pos.y = Mathf.Clamp(pos.y, minY, maxY);
-            
-            _pointerImage.transform.position = Vector3.SmoothDamp(_pointerImage.transform.position, pos, ref _calculatedVelocity, smoothTime);;
+
+            _pointerImage.transform.position = Vector3.SmoothDamp(_pointerImage.transform.position, pos,
+                ref _calculatedVelocity, smoothTime);
+            ;
             var interactorText = _interactable.GetMessage();
 
             if (_currentText == interactorText) return;
-            
-            if(_typewriter.IsWorking)
+
+            if (_typewriter.IsWorking)
                 _typewriter.Stop();
 
             _currentText = interactorText;
             _typewriter.Animate(interactorText);
         }
-        
+
         private bool IsObjectInCameraView()
         {
             var directionToObject = _closestInteractableObject.transform.position - _camera.transform.position;

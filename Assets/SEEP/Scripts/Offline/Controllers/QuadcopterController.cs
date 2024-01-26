@@ -1,12 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using DG.Tweening;
 using SEEP.InputHandlers;
 using UnityEngine;
-using Logger = SEEP.Utils.Logger;
 
-namespace SEEP.Offline
+namespace SEEP.Offline.Controllers
 {
     public class QuadcopterController : MonoBehaviour
     {

@@ -4,7 +4,7 @@ using SEEP.InputHandlers;
 using SEEP.Utils;
 using UnityEngine;
 
-namespace SEEP.Offline
+namespace SEEP.Offline.Controllers
 {
     public class DroneController : MonoBehaviour
     {

@@ -1,4 +1,5 @@
 using System;
+using DavidFDev.DevConsole;
 using FishNet.Object;
 using FishNet.Object.Prediction;
 using FishNet.Transporting;
@@ -290,12 +291,14 @@ namespace SEEP.Network.Controllers
             _droneInput = GetComponent<DroneInputHandler>();
             _upAxis = Vector3.up;
             _gravity = Physics.gravity;
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
             OnValidate();
         }
 
         private void Update()
         {
-            if (OwnerId != ClientManager.Connection.ClientId) return;
+            if (DevConsole.IsOpen || OwnerId != ClientManager.Connection.ClientId) return;
 
             if (_droneInput)
             {
@@ -513,8 +516,7 @@ namespace SEEP.Network.Controllers
         }
 
         private void Jump(Vector3 gravity)
-        {
-            Logger.Log(this, $"Try jump on client: {IsClient}. On host: {IsHost}. On Ground: {OnGround} On steep: {OnSteep}. Jump Phase: {_jumpPhase}");
+        { 
             Vector3 jumpDirection;
             if (OnGround)
             {

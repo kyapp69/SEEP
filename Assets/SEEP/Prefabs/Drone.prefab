@@ -456,7 +456,6 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 6368025730831865286}
   _networkObjectCache: {fileID: 6368025730831865286}
   playerInputSpace: {fileID: 0}
-  debugText: {fileID: 0}
   climbingIsEnabled: 0
   maxSpeed: 4
   maxClimbSpeed: 4

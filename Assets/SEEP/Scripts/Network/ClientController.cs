@@ -46,10 +46,10 @@ namespace SEEP.Network
             if (IsClient && IsOwner && ClientManager.Connection.IsActive) CmdChangeNickname(newNickname);
         }
 
-        private void RequestToSpawnObject(GameObject gameObject)
+        private void RequestToSpawnObject(GameObject gameObject, Vector3 pos)
         {
             if (IsClient && IsOwner && ClientManager.Connection.IsActive)
-                CmdSpawnObject(new Vector3(0, 1, 0), Quaternion.identity, Owner, gameObject);
+                CmdSpawnObject(pos, Quaternion.identity, Owner, gameObject);
         }
 
         #endregion
@@ -59,7 +59,7 @@ namespace SEEP.Network
         private void OnClientConnected()
         {
             ChangeNickname("test");
-            _camera = FindObjectOfType<CinemachineFreeLook>();
+            _camera = FindFirstObjectByType<CinemachineFreeLook>();
         }
 
         private void OnChangeNickname(string prevName, string nextName, bool asServer)
@@ -118,12 +118,12 @@ namespace SEEP.Network
 
         public void ConsoleSpawnDrone()
         {
-            RequestToSpawnObject(dronePrefab);
+            RequestToSpawnObject(dronePrefab, new Vector3(0,1,0));
         }
         
         public void ConsoleSpawnCube()
         {
-            RequestToSpawnObject(cubePrefab);
+            RequestToSpawnObject(cubePrefab, new Vector3(3,1,-7));
         }
 
         #endregion
