@@ -275,6 +275,11 @@ namespace SEEP.Network.Controllers
         /// </summary>
         private Vector2 _playerInput;
 
+        /// <summary>
+        /// Flag indicates if BroadcastAirPusher want to push
+        /// </summary>
+        private bool _desiredToPush;
+
         private bool OnGround => _groundContactCount > 0;
 
         private bool OnSteep => _steepContactCount > 0;
@@ -517,7 +522,8 @@ namespace SEEP.Network.Controllers
 
         public void PreventSnapToGround()
         {
-            _stepsSinceLastJump = -1;
+            //Logger.Log(this, $"Prevent to snap ground. On server: {IsServer}. On client: {IsClient}");
+            _desiredToPush = true;
         }
 
         private void Jump(Vector3 gravity)
@@ -595,7 +601,7 @@ namespace SEEP.Network.Controllers
 
         private DroneMoveData BuildMoveData()
         {
-            var md = new DroneMoveData(_playerInput, _desiredJump, _rightAxis, _forwardAxis);
+            var md = new DroneMoveData(_playerInput, _desiredJump, _desiredToPush, _rightAxis, _forwardAxis);
 
             return md;
         }
@@ -678,6 +684,8 @@ namespace SEEP.Network.Controllers
         {
             /*if (useCustomGravity)
                 _gravity = CustomGravity.GetGravity(_body.position, out _upAxis);*/
+            if (_desiredToPush)
+                _stepsSinceLastJump = -1;
             RotateObject();
             UpdateState();
             AdjustVelocity(md.PlayerInput, md.Right, md.Forward);
@@ -691,6 +699,8 @@ namespace SEEP.Network.Controllers
                 _desiredJump = false;
                 Jump(_gravity);
             }
+
+            _desiredToPush = false;
 
             /*if (Climbing)
                 _velocity -= _contactNormal * (maxClimbAcceleration * 0.9f * (float)TimeManager.TickDelta);

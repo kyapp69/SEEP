@@ -8,12 +8,14 @@ namespace SEEP.Network.Controllers
         public Vector2 PlayerInput;
         public Vector3 Forward, Right;
         public bool Jump;
+        public bool DesiredToPush;
 
-        public DroneMoveData(Vector2 playerInput, bool isJump, Vector3 rightAxis, Vector3 forwardAxis)
+        public DroneMoveData(Vector2 playerInput, bool isJump, bool desiredToPush, Vector3 rightAxis, Vector3 forwardAxis)
         {
             PlayerInput = playerInput;
             Forward = forwardAxis;
             Jump = isJump;
+            DesiredToPush = desiredToPush;
             Right = rightAxis;
             _tick = 0;
         }

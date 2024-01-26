@@ -1,3 +1,4 @@
+using System;
 using FishNet;
 using FishNet.Broadcast;
 using FishNet.Connection;
@@ -31,6 +32,11 @@ namespace SEEP.Network.Interactables
         {
             InstanceFinder.ClientManager.RegisterBroadcast<T>(OnClientStateChanged);
             InstanceFinder.ServerManager.RegisterBroadcast<T>(OnServerStateChanged);
+        }
+
+        private void Start()
+        {
+            //TODO: Fix forceState bug. True statement doesn't affect
             InstanceFinder.ClientManager.OnRemoteConnectionState += args =>
             {
                 if (!InstanceFinder.IsHost) return;
