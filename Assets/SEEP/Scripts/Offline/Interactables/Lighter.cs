@@ -1,7 +1,6 @@
-using System;
 using UnityEngine;
 
-namespace SEEP.Offline
+namespace SEEP.Offline.Interactables
 {
     public class Lighter : MonoBehaviour
     {

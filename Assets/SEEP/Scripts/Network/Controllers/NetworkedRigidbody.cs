@@ -1,10 +1,9 @@
-using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Prediction;
 using FishNet.Transporting;
 using UnityEngine;
 
-namespace SEEP.Network
+namespace SEEP.Network.Controllers
 {
     [RequireComponent(typeof(Rigidbody))]
     public class NetworkedRigidbody : NetworkBehaviour
