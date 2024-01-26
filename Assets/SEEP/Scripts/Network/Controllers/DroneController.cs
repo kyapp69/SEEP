@@ -515,8 +515,13 @@ namespace SEEP.Network.Controllers
             _velocity += xAxis * (newX - currentX) + zAxis * (newZ - currentZ);
         }
 
+        public void PreventSnapToGround()
+        {
+            _stepsSinceLastJump = -1;
+        }
+
         private void Jump(Vector3 gravity)
-        { 
+        {
             Vector3 jumpDirection;
             if (OnGround)
             {
