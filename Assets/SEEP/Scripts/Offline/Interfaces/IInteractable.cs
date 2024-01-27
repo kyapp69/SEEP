@@ -1,3 +1,4 @@
+using System;
 using SEEP.Network.Controllers;
 
 namespace SEEP.Offline.Interfaces
@@ -14,6 +15,7 @@ namespace SEEP.Offline.Interfaces
     public enum InteractableType
     {
         Object,
+        Lift,
         Zone
     }
 }

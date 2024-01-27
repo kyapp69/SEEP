@@ -136,7 +136,9 @@ namespace SEEP.Network.Controllers
                         _interactable.Interact(this);
                         _interactedInZone = true;
                     }
-
+                    break;
+                case InteractableType.Lift:
+                    ChangeVisibility(false);
                     break;
                 default:
                     Logger.Error(this, "Unexpected interactable type");

@@ -1,7 +1,9 @@
+using System;
 using SEEP.Network.Controllers;
 using SEEP.Offline.Interfaces;
 using SEEP.Utils;
 using UnityEngine;
+using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.Offline.Controllers
 {
@@ -16,17 +18,27 @@ namespace SEEP.Offline.Controllers
 
         protected virtual void Awake()
         {
-            gameObject.layer = LayerMask.NameToLayer("Interactable");
-            _message = message != "" ? message : "null";
             _type = interactableType;
-
-            if (_type != InteractableType.Zone) return;
-
-            _meshRenderer = GetComponent<MeshRenderer>();
-            _meshRenderer.enabled = false;
+            _message = message != "" ? message : "null";
+            switch (_type)
+            {
+                case InteractableType.Object:
+                    gameObject.layer = LayerMask.NameToLayer("Interactable");
+                    break;
+                case InteractableType.Lift:
+                    gameObject.layer = LayerMask.NameToLayer("Default");
+                    break;
+                case InteractableType.Zone:
+                    gameObject.layer = LayerMask.NameToLayer("Interactable");
+                    _meshRenderer = GetComponent<MeshRenderer>();
+                    _meshRenderer.enabled = false;
 #if DEBUG
-            InstanceFinder.GameManager.OnTriggerChangeVisibility += ChangeTriggerVisibility;
+                    InstanceFinder.GameManager.OnTriggerChangeVisibility += ChangeTriggerVisibility;
 #endif
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public InteractableType GetInteractableType() => _type;
