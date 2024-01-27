@@ -7,11 +7,11 @@ namespace SEEP.Offline.Interactables
 {
     public class OfflineButton : OfflineInteractable
     {
-        [SerializeField] private UnityEvent callback;
+        [SerializeField] private UnityEvent<InteractorController> callback;
 
         public override void Interact(InteractorController interactor)
         {
-            callback?.Invoke();
+            callback?.Invoke(interactor);
         }
     }
 }

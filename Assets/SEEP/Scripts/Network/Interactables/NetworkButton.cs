@@ -1,3 +1,5 @@
+using System;
+using FishNet.Connection;
 using FishNet.Object;
 using SEEP.Network.Controllers;
 using SEEP.Offline.Interfaces;
@@ -10,8 +12,8 @@ namespace SEEP.Network.Interactables
     public sealed class NetworkButton : NetworkBehaviour, IInteractable
     {
         [SerializeField] private string message;
-        [SerializeField] private UnityEvent callback;
         [SerializeField] private InteractableType interactableType;
+        [SerializeField] private UnityEvent callback;
 
         private string _message;
         private InteractableType _type;
