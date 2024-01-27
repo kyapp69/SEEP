@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SEEP.Network.Interactables
 {
-    public class NetworkedLamp : BroadcastInteractable<LampState>
+    public class BroadcastLamp : BroadcastInteractable<LampState>
     {
         private Material _material;
         private bool _isEnabled;
@@ -17,11 +17,6 @@ namespace SEEP.Network.Interactables
             ForceState = true;
             UpdateState();
             base.Awake();
-        }
-
-        public void Interact()
-        {
-            Interact(null);
         }
 
         public override void Interact(InteractorController controller)

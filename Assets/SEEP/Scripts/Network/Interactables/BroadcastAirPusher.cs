@@ -69,12 +69,6 @@ namespace SEEP.Network.Interactables
             body.velocity = velocity;
         }
 
-
-        public override void Interact(InteractorController controller)
-        {
-            base.Interact(controller);
-        }
-
         protected override AirPusherState GetState()
         {
             return new AirPusherState
