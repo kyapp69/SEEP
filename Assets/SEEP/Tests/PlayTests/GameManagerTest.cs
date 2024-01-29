@@ -5,6 +5,7 @@ using FishNet;
 using FishNet.Managing.Server;
 using FishNet.Transporting;
 using NUnit.Framework;
+using SEEP;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Cinemachine;
 using FishNet.Connection;
@@ -5,6 +6,7 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using FishNet.Transporting;
 using SEEP.Network.Controllers;
+using SEEP.Utils;
 using UnityEngine;
 using Logger = SEEP.Utils.Logger;
 
@@ -35,7 +37,7 @@ namespace SEEP.Network
         #region PRIVATE VARIABLES
 
         private bool _isInitialized;
-        private CinemachineFreeLook _camera;
+        private DroneController _droneController;
 
         #endregion
 
@@ -58,8 +60,8 @@ namespace SEEP.Network
 
         private void OnClientConnected()
         {
-            ChangeNickname("test");
-            _camera = FindFirstObjectByType<CinemachineFreeLook>();
+            ChangeNickname(Environment.UserName);
+            InstanceFinder.GameManager.RegisterPlayer(this);
         }
 
         private void OnChangeNickname(string prevName, string nextName, bool asServer)
@@ -93,16 +95,14 @@ namespace SEEP.Network
         {
             var clone = Instantiate(gameObject, pos, rot);
             ServerManager.Spawn(clone, conn);
-            RpcRegisterCamera(conn);
+            if (gameObject == dronePrefab)
+                RpcRegisterDrone(conn, clone);
         }
 
         [TargetRpc]
-        private void RpcRegisterCamera(NetworkConnection conn)
+        private void RpcRegisterDrone(NetworkConnection conn, GameObject drone)
         {
-            var drones = FindObjectsByType<DroneController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-            var targetDrone = drones.First(x => x.Owner == Owner).transform.GetChild(0);
-            _camera.LookAt = targetDrone;
-            _camera.Follow = targetDrone;
+            _droneController = drone.GetComponent<DroneController>();
         }
 
         #endregion
@@ -118,12 +118,14 @@ namespace SEEP.Network
 
         public void ConsoleSpawnDrone()
         {
-            RequestToSpawnObject(dronePrefab, new Vector3(0,1,0));
+            RequestToSpawnObject(dronePrefab, new Vector3(0, 1, 0));
         }
-        
+
         public void ConsoleSpawnCube()
         {
-            RequestToSpawnObject(cubePrefab, new Vector3(3,1,-7));
+            if (_droneController == null) return;
+            var position = _droneController.transform.position;
+            RequestToSpawnObject(cubePrefab, new Vector3(position.x, position.y + 3, position.z));
         }
 
         #endregion

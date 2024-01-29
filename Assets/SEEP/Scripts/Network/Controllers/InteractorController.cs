@@ -43,7 +43,6 @@ namespace SEEP.Network.Controllers
         private TextMeshProUGUI _pointerText;
         private string _currentText;
         private Typewriter _typewriter;
-        private Coroutine _changeTextCoroutine;
 
         private Vector3 _calculatedVelocity;
 
@@ -96,6 +95,17 @@ namespace SEEP.Network.Controllers
 
             _isPlayerInTriggerZone = false;
             _interactedInZone = false;
+        }
+
+        private void OnDestroy()
+        {
+            _tweener?.Kill(true);
+            
+            if(_typewriter != null)
+                _typewriter.SkipToEnd();
+            
+            if(_marker != null)
+                Destroy(_marker);
         }
 
         private void Update()

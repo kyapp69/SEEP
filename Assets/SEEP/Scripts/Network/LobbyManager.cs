@@ -141,6 +141,11 @@ namespace SEEP.Network
             InitializeClientSide();
         }
 
+        public override void OnStopNetwork()
+        {
+            
+        }
+
         /// <summary>
         /// Server command for registrate new client, and synchronizing over network
         /// </summary>

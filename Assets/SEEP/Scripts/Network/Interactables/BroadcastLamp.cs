@@ -1,7 +1,9 @@
+using FishNet;
 using FishNet.Broadcast;
 using SEEP.Network.Controllers;
 using SEEP.Offline.Interfaces;
 using UnityEngine;
+using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.Network.Interactables
 {
@@ -27,10 +29,7 @@ namespace SEEP.Network.Interactables
 
         protected override void UpdateState()
         {
-            if (_isEnabled)
-                _material.EnableKeyword("_EMISSION");
-            else
-                _material.DisableKeyword("_EMISSION");
+            _material.color = _isEnabled ? Color.yellow : Color.black;
         }
 
         protected override LampState GetState()

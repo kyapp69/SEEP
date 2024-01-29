@@ -14,13 +14,13 @@ namespace SEEP.Network.Controllers
         {
             base.OnStartNetwork();
             _rigidbody = GetComponent<Rigidbody>();
-            base.TimeManager.OnPostTick += TimeManager_OnTick;
+            base.TimeManager.OnTick += TimeManager_OnTick;
         }
 
         public override void OnStopNetwork()
         {
             base.OnStopNetwork();
-            base.TimeManager.OnTick -= TimeManager_OnTick;
+            TimeManager.OnTick -= TimeManager_OnTick;
         }
         private void TimeManager_OnTick()
         {

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace SEEP.Offline.Interactables
 {
-    public class Lighter : MonoBehaviour
+    public class OfflineLamp : MonoBehaviour
     {
         private Material _material;
         private bool _state;
@@ -16,15 +16,7 @@ namespace SEEP.Offline.Interactables
         public void Switch()
         {
             _state = !_state;
-            
-            if (_state)
-            {
-                _material.EnableKeyword("_EMISSION");
-            }
-            else
-            {
-                _material.DisableKeyword("_EMISSION");
-            }
+            _material.color = _state ? Color.yellow : Color.black;
         }
     }
 }

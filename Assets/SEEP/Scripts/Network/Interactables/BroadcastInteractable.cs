@@ -1,10 +1,7 @@
-using System;
 using FishNet;
 using FishNet.Broadcast;
 using FishNet.Connection;
-using FishNet.Transporting;
 using SEEP.Network.Controllers;
-using SEEP.Offline;
 using SEEP.Offline.Controllers;
 using SEEP.Offline.Interfaces;
 using UnityEngine;
@@ -36,14 +33,14 @@ namespace SEEP.Network.Interactables
 
         private void Start()
         {
-            //TODO: Fix forceState bug. True statement doesn't affect
+            /*//TODO: Fix forceState bug. True statement doesn't affect
             InstanceFinder.ClientManager.OnRemoteConnectionState += args =>
             {
                 if (!InstanceFinder.IsHost) return;
                 if (ForceState && args.ConnectionState == RemoteConnectionState.Started) return;
 
                 SendState(InternalServerState);
-            };
+            };*/
         }
 
         private void OnDisable()

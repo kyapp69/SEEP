@@ -25,8 +25,8 @@ namespace SEEP.Utils
                 _lobbyManager = FindFirstObjectByType<LobbyManager>();
                 if (_lobbyManager)
                     return _lobbyManager;
-                Logger.Error("InstanceFinder", "LobbyManager not founded on the scene");
-                throw new NullReferenceException("LobbyManager not founded on the scene");
+                Logger.Warning("InstanceFinder", "LobbyManager not founded on the scene");
+                return null;
             }
         }
         
@@ -39,8 +39,8 @@ namespace SEEP.Utils
                 _gameManager = FindFirstObjectByType<GameManager>();
                 if (_gameManager)
                     return _gameManager;
-                Logger.Error("InstanceFinder", "GameManager not founded on the scene");
-                throw new NullReferenceException("GameManager not founded on the scene");
+                Logger.Warning("InstanceFinder", "GameManager not founded on the scene");
+                return null;
             }
         }
         #endregion

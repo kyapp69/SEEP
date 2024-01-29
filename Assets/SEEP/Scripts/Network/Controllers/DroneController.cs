@@ -5,6 +5,7 @@ using FishNet.Object.Prediction;
 using FishNet.Transporting;
 using NaughtyAttributes;
 using SEEP.InputHandlers;
+using SEEP.Utils;
 using TMPro;
 using UnityEngine;
 using Logger = SEEP.Utils.Logger;
@@ -280,6 +281,8 @@ namespace SEEP.Network.Controllers
         /// </summary>
         private bool _desiredToPush;
 
+        private bool _requireToTeleport;
+
         private bool OnGround => _groundContactCount > 0;
 
         private bool OnSteep => _steepContactCount > 0;
@@ -296,8 +299,6 @@ namespace SEEP.Network.Controllers
             _droneInput = GetComponent<DroneInputHandler>();
             _upAxis = Vector3.up;
             _gravity = Physics.gravity;
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
             OnValidate();
         }
 
@@ -599,9 +600,19 @@ namespace SEEP.Network.Controllers
             }
         }
 
+        public void RequireToTeleport()
+        {
+            _requireToTeleport = true;
+        }
+        
+        private void Teleport()
+        {
+            transform.position = Vector3.up;
+        }
+
         private DroneMoveData BuildMoveData()
         {
-            var md = new DroneMoveData(_playerInput, _desiredJump, _desiredToPush, _rightAxis, _forwardAxis);
+            var md = new DroneMoveData(_playerInput, _desiredJump, _desiredToPush, _rightAxis, _forwardAxis, _requireToTeleport);
 
             return md;
         }
@@ -665,6 +676,7 @@ namespace SEEP.Network.Controllers
 
             if (OwnerId != ClientManager.Connection.ClientId) return;
             //Caching some components, that required on client
+            InstanceFinder.GameManager.RegisterDrone(this);
             _droneInput = GetComponent<DroneInputHandler>();
             if (Camera.main != null) playerInputSpace = Camera.main.transform;
         }
@@ -675,6 +687,7 @@ namespace SEEP.Network.Controllers
             base.OnStopNetwork();
 
             //Desubscribing from server tick events
+            Debug.Log("desubscribe from tick");
             TimeManager.OnTick -= TimeManager_OnTick;
         }
 
@@ -684,36 +697,45 @@ namespace SEEP.Network.Controllers
         {
             /*if (useCustomGravity)
                 _gravity = CustomGravity.GetGravity(_body.position, out _upAxis);*/
-            if (_desiredToPush)
-                _stepsSinceLastJump = -1;
-            RotateObject();
-            UpdateState();
-            AdjustVelocity(md.PlayerInput, md.Right, md.Forward);
-            _gravity = Physics.gravity;
-
-            if (compensateStairsForce)
-                CompensateStairsForce();
-
-            if (md.Jump && jumpingIsEnabled)
+            if (!md.TeleportNeeded)
             {
-                _desiredJump = false;
-                Jump(_gravity);
+                if (_desiredToPush)
+                    _stepsSinceLastJump = -1;
+                RotateObject();
+                UpdateState();
+                AdjustVelocity(md.PlayerInput, md.Right, md.Forward);
+                _gravity = Physics.gravity;
+
+                if (compensateStairsForce)
+                    CompensateStairsForce();
+
+                if (md.Jump && jumpingIsEnabled)
+                {
+                    _desiredJump = false;
+                    Jump(_gravity);
+                }
+
+                _desiredToPush = false;
+
+                /*if (Climbing)
+                    _velocity -= _contactNormal * (maxClimbAcceleration * 0.9f * (float)TimeManager.TickDelta);
+                else if (OnGround && _velocity.sqrMagnitude < 0.01f)
+                    _velocity += _contactNormal * (Vector3.Dot(_gravity, _contactNormal) * (float)TimeManager.TickDelta);
+                else if (_desiresClimbing && OnGround)
+                    _velocity += (_gravity - _contactNormal * (maxClimbAcceleration * 0.9f)) * (float)TimeManager.TickDelta;
+                else if (useCustomGravity)
+                    _velocity += _gravity * (float)TimeManager.TickDelta;*/
+
+                if (OnGround && _velocity.sqrMagnitude < 0.01f)
+                    _velocity += _contactNormal * (Vector3.Dot(_gravity, _contactNormal) * (float)TimeManager.TickDelta);
+                _body.velocity = _velocity;
             }
-
-            _desiredToPush = false;
-
-            /*if (Climbing)
-                _velocity -= _contactNormal * (maxClimbAcceleration * 0.9f * (float)TimeManager.TickDelta);
-            else if (OnGround && _velocity.sqrMagnitude < 0.01f)
-                _velocity += _contactNormal * (Vector3.Dot(_gravity, _contactNormal) * (float)TimeManager.TickDelta);
-            else if (_desiresClimbing && OnGround)
-                _velocity += (_gravity - _contactNormal * (maxClimbAcceleration * 0.9f)) * (float)TimeManager.TickDelta;
-            else if (useCustomGravity)
-                _velocity += _gravity * (float)TimeManager.TickDelta;*/
-
-            if (OnGround && _velocity.sqrMagnitude < 0.01f)
-                _velocity += _contactNormal * (Vector3.Dot(_gravity, _contactNormal) * (float)TimeManager.TickDelta);
-            _body.velocity = _velocity;
+            else
+            {
+                _body.velocity = Vector3.zero;
+                _requireToTeleport = false;
+                Teleport();
+            }
             ClearState();
         }
 
