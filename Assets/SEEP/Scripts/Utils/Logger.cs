@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace SEEP.Utils
 {
+    //TODO: Rework logger to support disable logging for different systems
     public static class Logger
     {
         public static void Log<T>(T sender, string message)

@@ -143,8 +143,8 @@ namespace SEEP.Offline.Controllers
 
         private void FixedUpdate()
         {
-            if (useCustomGravity)
-                _gravity = CustomGravity.GetGravity(_body.position, out _upAxis);
+            /*if (useCustomGravity)
+                _gravity = CustomGravity.GetGravity(_body.position, out _upAxis);*/
             UpdateState();
             AdjustVelocity();
 
