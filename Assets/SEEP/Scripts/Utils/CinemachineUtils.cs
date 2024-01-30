@@ -14,14 +14,7 @@ namespace SEEP.Utils
         {
             _inputProvider = GetComponent<CinemachineInputProvider>();
             _camera = GetComponent<CinemachineFreeLook>();
-            InstanceFinder.GameManager.OnLocalDroneSpawned += () =>
-            {
-                _camera.enabled = true;
-                var visualChild = InstanceFinder.GameManager.LocalDrone.transform.GetChild(0);
-                _camera.Follow = visualChild;
-                _camera.LookAt = visualChild;
-            };
-            InstanceFinder.GameManager.OnClientStopped += () =>
+            InstanceFinder.NetworkController.OnClientDisconnected += () =>
             {
                 if (_camera == null) return;
                 _camera.enabled = false;
@@ -39,6 +32,14 @@ namespace SEEP.Utils
                 false when !inputEnabled => true,
                 _ => inputEnabled
             };
+        }
+
+        public void OnDroneSpawned()
+        {
+            _camera.enabled = true;
+            var visualChild = InstanceFinder.GameManager.LocalDrone.transform.GetChild(0);
+            _camera.Follow = visualChild;
+            _camera.LookAt = visualChild;
         }
     }
 }

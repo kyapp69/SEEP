@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using DavidFDev.DevConsole;
-using FishNet;
 using FishNet.Managing.Server;
 using FishNet.Transporting;
 using NUnit.Framework;
 using SEEP;
+using SEEP.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
+using InstanceFinder = FishNet.InstanceFinder;
 
 public class GameManagerTest
 {

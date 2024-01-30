@@ -72,8 +72,10 @@ namespace SEEP.Utils
 		/// Called when a server is found.
 		/// </summary>
 		public event Action<IPEndPoint> ServerFoundCallback;
+
+		public event Action OnFoundNewServer;
 		
-		public List<IPEndPoint> FoundedServer { get; private set; }
+		public List<string> FoundedServers { get; private set; }
 
 		/// <summary>
 		/// True if the server is being advertised.
@@ -95,7 +97,7 @@ namespace SEEP.Utils
 
 				_mainThreadSynchronizationContext = SynchronizationContext.Current;
 
-				FoundedServer = new List<IPEndPoint>();
+				FoundedServers = new List<string>();
 			}
 			else
 			{
@@ -207,9 +209,11 @@ namespace SEEP.Utils
 
 		private void OnServerFoundCallback(IPEndPoint obj)
 		{
-			if (FoundedServer.Contains(obj)) return;
+			var address = obj.Address.ToString();
+			if (FoundedServers.Contains(address)) return;
 			
-			FoundedServer.Add(obj);
+			FoundedServers.Add(address);
+			OnFoundNewServer?.Invoke();
 		}
 
 		/// <summary>
@@ -225,6 +229,7 @@ namespace SEEP.Utils
 			}
 			
 			ServerFoundCallback -= OnServerFoundCallback;
+			FoundedServers.Clear();
 
 			_cancellationTokenSource.Cancel();
 

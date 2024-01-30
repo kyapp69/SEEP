@@ -3,6 +3,7 @@ using DavidFDev.DevConsole;
 using SEEP.Utils;
 using UnityEngine.UIElements;
 using UnityEngine;
+using Logger = SEEP.Utils.Logger;
 
 public class DeveloperUIHandler : MonoBehaviour
 {
@@ -25,21 +26,15 @@ public class DeveloperUIHandler : MonoBehaviour
 
         _startHost = buttonBox.Q<Button>("Host");
         _startHost.RegisterCallback<ClickEvent>(OnStartHostClicked);
-        InstanceFinder.GameManager.OnHostConnected += OnHostConnected;
-        InstanceFinder.GameManager.OnHostStopped += OnHostStopped;
 
         _startClient = buttonBox.Q<Button>("Client");
         _startClient.RegisterCallback<ClickEvent>(OnStartClientClicked);
-        InstanceFinder.GameManager.OnClientConnected += OnClientConnected;
-        InstanceFinder.GameManager.OnClientStopped += OnClientStopped;
 
         _serverList = buttonBox.Q<DropdownField>("ServerList");
-        InstanceFinder.GameManager.OnNewFoundedServer += OnNewServerFound;
-
+        
         _spawnDrone = buttonBox.Q<Button>("SpawnDrone");
         _spawnDrone.SetEnabled(false);
-        _spawnDrone.RegisterCallback<ClickEvent>(OnSpawnDroneCLicked);
-        InstanceFinder.GameManager.OnLocalDroneSpawned += OnLocalDroneSpawned;
+        _spawnDrone.RegisterCallback<ClickEvent>(OnSpawnDroneClicked);
 
         _resetDrone = buttonBox.Q<Button>("ResetDrone");
         _resetDrone.SetEnabled(false);
@@ -48,53 +43,70 @@ public class DeveloperUIHandler : MonoBehaviour
         _spawnCube = buttonBox.Q<Button>("SpawnCube");
         _spawnCube.SetEnabled(false);
         _spawnCube.RegisterCallback<ClickEvent>(OnSpawnCubeCLicked);
-        InstanceFinder.GameManager.OnLocalPlayerSpawned += OnLocalPlayerSpawned;
 
         _showTriggers = buttonBox.Q<Button>("TriggerButton");
         _showTriggers.SetEnabled(false);
         _showTriggers.RegisterCallback<ClickEvent>(OnShowTriggersClicked);
     }
 
-    private void OnNewServerFound()
+    public void OnNewServerFound()
     {
-        _serverList.choices = InstanceFinder.GameManager.FoundedServers.Select(ip => ip.Address.ToString()).ToList();
+        _serverList.choices = InstanceFinder.NetworkController.FoundedServers;
     }
 
-    private void OnLocalPlayerSpawned()
+    public void OnLocalPlayerSpawned()
     {
         _showTriggers.SetEnabled(true);
-        _spawnCube.SetEnabled(true);
     }
 
-    private void OnLocalDroneSpawned()
+    public void OnLocalDroneSpawned()
     {
         _spawnDrone.SetEnabled(false);
         _resetDrone.SetEnabled(true);
+        _spawnCube.SetEnabled(true);
     }
 
-    private void OnClientStopped()
+    public void OnClientStopped()
     {
         _startClient.text = "Start client";
+        _startClient.RemoveFromClassList("cancel");
+        
         _startHost.SetEnabled(true);
+        
+        _spawnDrone.SetEnabled(false);
+        _resetDrone.SetEnabled(false);
+        _showTriggers.SetEnabled(false);
+        _spawnCube.SetEnabled(false);
     }
 
-    private void OnClientConnected()
+    public void OnClientConnected()
     {
         _startClient.text = "Stop client";
+        _startClient.AddToClassList("cancel");
+        
         _startHost.SetEnabled(false);
 
         _spawnDrone.SetEnabled(true);
     }
 
-    private void OnHostStopped()
+    public void OnHostStopped()
     {
         _startHost.text = "Start host";
+        _startHost.RemoveFromClassList("cancel");
+        
         _startClient.SetEnabled(true);
+        
+        _spawnDrone.SetEnabled(false);
+        _resetDrone.SetEnabled(false);
+        _showTriggers.SetEnabled(false);
+        _spawnCube.SetEnabled(false);
     }
 
-    private void OnHostConnected()
+    public void OnHostConnected()
     {
         _startHost.text = "Stop host";
+        _startHost.AddToClassList("cancel");
+        
         _startClient.SetEnabled(false);
 
         _spawnDrone.SetEnabled(true);
@@ -102,17 +114,18 @@ public class DeveloperUIHandler : MonoBehaviour
 
     private void OnStartHostClicked(ClickEvent evt)
     {
-        InstanceFinder.GameManager.SwitchHost(!InstanceFinder.GameManager.IsHostActive);
+        InstanceFinder.NetworkController.SwitchHost(!InstanceFinder.NetworkController.IsHostActive);
     }
 
     private void OnStartClientClicked(ClickEvent evt)
     {
         if (_serverList.index == -1) return; 
-        InstanceFinder.GameManager.SwitchClient(!InstanceFinder.GameManager.IsClientActive, _serverList.choices[_serverList.index]);
+        InstanceFinder.NetworkController.SwitchClient(!InstanceFinder.NetworkController.IsClientActive, _serverList.choices[_serverList.index]);
     }
 
-    private void OnSpawnDroneCLicked(ClickEvent evt)
+    private void OnSpawnDroneClicked(ClickEvent evt)
     {
+        Logger.Log(this, $"{InstanceFinder.GameManager}");
         InstanceFinder.GameManager.LocalClient.ConsoleSpawnDrone();
     }
 
@@ -131,12 +144,12 @@ public class DeveloperUIHandler : MonoBehaviour
         if (InstanceFinder.GameManager.TriggerVisible)
         {
             _showTriggers.text = "Show triggers";
-            _showTriggers.RemoveFromClassList("cancelbutton");
+            _showTriggers.RemoveFromClassList("cancel");
         }
         else
         {
             _showTriggers.text = "Hide triggers";
-            _showTriggers.AddToClassList("cancelbutton");
+            _showTriggers.AddToClassList("cancel");
         }
 
         InstanceFinder.GameManager.ChangeTriggerVisible();
@@ -146,34 +159,23 @@ public class DeveloperUIHandler : MonoBehaviour
     {
         _startHost.UnregisterCallback<ClickEvent>(OnStartHostClicked);
         _startClient.UnregisterCallback<ClickEvent>(OnStartClientClicked);
-
-        if (InstanceFinder.GameManager == null) return;
-
-        InstanceFinder.GameManager.OnHostConnected -= OnHostConnected;
-        InstanceFinder.GameManager.OnHostStopped -= OnHostStopped;
-        InstanceFinder.GameManager.OnClientConnected -= OnClientConnected;
-        InstanceFinder.GameManager.OnClientStopped -= OnClientStopped;
     }
 
     private void Update()
     {
         if (DevConsole.IsOpen)
         {
-            if (!_root.visible)
-            {
-                _root.visible = true;
-                UnityEngine.Cursor.visible = true;
-                UnityEngine.Cursor.lockState = CursorLockMode.None;
-            }
+            if (_root.visible) return;
+            _root.visible = true;
+            UnityEngine.Cursor.visible = true;
+            UnityEngine.Cursor.lockState = CursorLockMode.None;
         }
         else
         {
-            if (_root.visible)
-            {
-                _root.visible = false;
-                UnityEngine.Cursor.visible = false;
-                UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-            }
+            if (!_root.visible) return;
+            _root.visible = false;
+            UnityEngine.Cursor.visible = false;
+            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
         }
     }
 }

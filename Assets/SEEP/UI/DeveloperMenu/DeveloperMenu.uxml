@@ -4,15 +4,15 @@
         <ui:VisualElement name="DeveloperMenu" class="background" style="flex-wrap: nowrap; flex-direction: column; justify-content: space-between; align-self: center; width: 400px; left: 50px;">
             <ui:Label text="Developer Menu" />
             <ui:VisualElement name="ButtonBox" style="flex-shrink: 1; flex-grow: 0; flex-wrap: nowrap; margin-top: 0; margin-right: 15px; margin-bottom: 15px; margin-left: 15px;">
-                <ui:Button text="Start host" name="Host" style="flex-grow: 1;" />
+                <ui:Button text="Start host" name="Host" enable-rich-text="false" focusable="false" style="flex-grow: 1;" />
                 <ui:VisualElement style="flex-grow: 1; flex-direction: row; align-self: center; justify-content: space-evenly; margin-top: 0; margin-bottom: 0; padding-top: 10px; padding-bottom: 10px; padding-left: 0; padding-right: 0; align-items: stretch; flex-shrink: 0; flex-wrap: nowrap; margin-right: 4px; margin-left: 4px;">
-                    <ui:Button text="Start client" name="Client" class="button" style="flex-grow: 1; margin-top: 0; margin-bottom: 0; flex-shrink: 0; margin-left: 0; margin-right: 0; align-self: auto;" />
-                    <ui:DropdownField name="ServerList" style="flex-grow: 1; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; flex-shrink: 0;" />
+                    <ui:Button text="Start client" name="Client" focusable="false" enable-rich-text="false" class="button" style="flex-grow: 1; margin-top: 0; margin-bottom: 0; flex-shrink: 0; margin-left: 0; margin-right: 0; align-self: auto;" />
+                    <ui:DropdownField name="ServerList" focusable="false" style="flex-grow: 1; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; flex-shrink: 0;" />
                 </ui:VisualElement>
-                <ui:Button text="Spawn drone" name="SpawnDrone" class="button disablebutton" />
-                <ui:Button text="Reset drone" name="ResetDrone" class="button disablebutton" />
-                <ui:Button text="Spawn cube" name="SpawnCube" class="button disablebutton" />
-                <ui:Button text="Show triggers" name="TriggerButton" enable-rich-text="true" class="button disablebutton" style="display: flex;" />
+                <ui:Button text="Spawn drone" name="SpawnDrone" focusable="false" enable-rich-text="false" />
+                <ui:Button text="Reset drone" name="ResetDrone" focusable="false" enable-rich-text="false" />
+                <ui:Button text="Spawn cube" name="SpawnCube" focusable="false" enable-rich-text="false" />
+                <ui:Button text="Show triggers" name="TriggerButton" enable-rich-text="false" focusable="false" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

@@ -672,11 +672,9 @@ namespace SEEP.Network.Controllers
 
             //Subscribing on server tick events
             TimeManager.OnTick += TimeManager_OnTick;
-            //TimeManager.OnPostTick += TimeManager_OnPostTick;
-
             if (OwnerId != ClientManager.Connection.ClientId) return;
             //Caching some components, that required on client
-            InstanceFinder.GameManager.RegisterDrone(this);
+            
             _droneInput = GetComponent<DroneInputHandler>();
             if (Camera.main != null) playerInputSpace = Camera.main.transform;
         }
@@ -685,9 +683,7 @@ namespace SEEP.Network.Controllers
         public override void OnStopNetwork()
         {
             base.OnStopNetwork();
-
-            //Desubscribing from server tick events
-            Debug.Log("desubscribe from tick");
+            
             TimeManager.OnTick -= TimeManager_OnTick;
         }
 

@@ -1,6 +1,6 @@
-using System;
 using SEEP.Network;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace SEEP.Utils
 {
@@ -12,37 +12,40 @@ namespace SEEP.Utils
 
         private static GameManager _gameManager;
 
+        private static NetworkController _networkController;
+
         #endregion
 
         #region PUBLIC
 
         public static LobbyManager LobbyManager
         {
-            get
-            {
-                if (_lobbyManager != null) return _lobbyManager;
-                
-                _lobbyManager = FindFirstObjectByType<LobbyManager>();
-                if (_lobbyManager)
-                    return _lobbyManager;
-                Logger.Warning("InstanceFinder", "LobbyManager not founded on the scene");
-                return null;
-            }
+            get => FindObject(ref _lobbyManager);
+            private set => LobbyManager = value;
         }
-        
         public static GameManager GameManager
         {
-            get
-            {
-                if (_gameManager != null) return _gameManager;
-                
-                _gameManager = FindFirstObjectByType<GameManager>();
-                if (_gameManager)
-                    return _gameManager;
-                Logger.Warning("InstanceFinder", "GameManager not founded on the scene");
-                return null;
-            }
+            get => FindObject(ref _gameManager);
+            private set => GameManager = value;
         }
+        
+        public static NetworkController NetworkController
+        {
+            get => FindObject(ref _networkController);
+            private set => NetworkController = value;
+        }
+
         #endregion
+        
+        private static T FindObject<T>(ref T outVar) where T : Object
+        {
+            if (outVar != null) return outVar;
+                
+            outVar = FindFirstObjectByType<T>();
+            if (outVar)
+                return outVar;
+            Logger.Warning("InstanceFinder", $"{outVar.GetType()} not founded on the scene");
+            return null;
+        }
     }
 }

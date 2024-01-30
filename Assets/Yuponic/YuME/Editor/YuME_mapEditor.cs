@@ -44,14 +44,16 @@ public class YuME_mapEditor : EditorWindow
     static Color _gridColorBorder = Color.black;
     static Color _gridColorFill = Color.black;
 
-	static Vector3 _brushSize = Vector3.one;
+    static Vector3 _brushSize = Vector3.one;
 
     static bool setupScene = false;
-    
+
     public static bool eraseToolOverride = false;
     public static bool pickToolOverride = false;
 
-    public static int currentBrushIndex = 0; // note - custom brushes should not effect this. It's used for cycling through the standard tiles.
+    public static int
+        currentBrushIndex =
+            0; // note - custom brushes should not effect this. It's used for cycling through the standard tiles.
 
     public static brushTypes currentBrushType = brushTypes.standardBrush;
 
@@ -128,7 +130,7 @@ public class YuME_mapEditor : EditorWindow
     static string currentScene;
     static int _currentTileSetIndex;
     static int _currentLayer = 1;
-	static bool openConfig = false;
+    static bool openConfig = false;
 
     // ----------------------------------------------------------------------------------------------------
     // ----- Scene Tools Variables
@@ -188,18 +190,21 @@ public class YuME_mapEditor : EditorWindow
         // ----------------------------------------------------------------------------------------------------
 
         guids = AssetDatabase.FindAssets("YuME_editorSetupData");
-        editorData = AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guids[0]), typeof(YuME_editorData)) as YuME_editorData;
+        editorData =
+            AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guids[0]), typeof(YuME_editorData)) as
+                YuME_editorData;
 
         guids = AssetDatabase.FindAssets("YuME_editorPreferenceData");
 
         if (guids.Length == 0)
         {
-           if (!AssetDatabase.IsValidFolder(YuTools_Utils.getAssetPath(editorData)+"Preferences"))
-                AssetDatabase.CreateFolder(YuTools_Utils.removeLastFolderSlash(YuTools_Utils.getAssetPath(editorData)), "Preferences");
+            if (!AssetDatabase.IsValidFolder(YuTools_Utils.getAssetPath(editorData) + "Preferences"))
+                AssetDatabase.CreateFolder(YuTools_Utils.removeLastFolderSlash(YuTools_Utils.getAssetPath(editorData)),
+                    "Preferences");
 
             editorPreferences = CreateInstance("YuME_editorPreferences") as YuME_editorPreferences;
 
-            for(int i = 1; i < 9; i++)
+            for (int i = 1; i < 9; i++)
             {
                 editorPreferences.layerNames.Add("layer" + i);
                 editorPreferences.layerFreeze.Add(true);
@@ -207,11 +212,14 @@ public class YuME_mapEditor : EditorWindow
             }
 
 
-            AssetDatabase.CreateAsset(editorPreferences, YuTools_Utils.getAssetPath(editorData)+"Preferences/"+"YuME_editorPreferenceData.asset");
+            AssetDatabase.CreateAsset(editorPreferences,
+                YuTools_Utils.getAssetPath(editorData) + "Preferences/" + "YuME_editorPreferenceData.asset");
         }
         else
         {
-            editorPreferences = AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guids[0]), typeof(YuME_editorPreferences)) as YuME_editorPreferences;
+            editorPreferences =
+                AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guids[0]), typeof(YuME_editorPreferences))
+                    as YuME_editorPreferences;
         }
 
         //guids = AssetDatabase.FindAssets("YuME_importSettings");
@@ -256,7 +264,7 @@ public class YuME_mapEditor : EditorWindow
 #else
         SceneView.onSceneGUIDelegate -= OnSceneGUI;
         SceneView.onSceneGUIDelegate += OnSceneGUI;
-#endif 
+#endif
 #if UNITY_2017
         EditorApplication.hierarchyWindowChanged -= OnSceneChanged;
         EditorApplication.hierarchyWindowChanged += OnSceneChanged;
@@ -266,22 +274,23 @@ public class YuME_mapEditor : EditorWindow
 #endif
 
         findUI();
-        if(toolEnabled)
+        if (toolEnabled)
         {
             showUI(false);
         }
     }
 
-	static void OnSceneChanged()
-	{
-		if (currentScene != EditorSceneManager.GetActiveScene().name)
-		{
-			toolEnabled = false;
+    static void OnSceneChanged()
+    {
+        if (currentScene != EditorSceneManager.GetActiveScene().name)
+        {
+            toolEnabled = false;
             YuTools_Utils.showUnityGrid(true);
-			currentScene = EditorSceneManager.GetActiveScene().name;
-		}
+            currentScene = EditorSceneManager.GetActiveScene().name;
+        }
+
         YuME_sceneGizmoFunctions.displayGizmoGrid();
-	}
+    }
 
     void OnDestroy()
     {
@@ -311,7 +320,8 @@ public class YuME_mapEditor : EditorWindow
         {
             Repaint();
         }
-        if(EditorApplication.isPlayingOrWillChangePlaymode && uiState == false)
+
+        if (EditorApplication.isPlayingOrWillChangePlaymode && uiState == false)
         {
             showUI(true);
         }
@@ -340,6 +350,7 @@ public class YuME_mapEditor : EditorWindow
                     unFreezeMap();
                 }
             }
+
             updateGridType();
             updateGridScale();
         }
@@ -366,14 +377,16 @@ public class YuME_mapEditor : EditorWindow
             // ----------------------------------------------------------------------------------------------------
 
             guids = AssetDatabase.FindAssets("YuME_MapEditorObject");
-            GameObject tileParentPrefab = AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guids[0]), typeof(GameObject)) as GameObject;
+            GameObject tileParentPrefab =
+                AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guids[0]),
+                    typeof(GameObject)) as GameObject;
 
             tileMapParent = PrefabUtility.InstantiatePrefab(tileParentPrefab as GameObject) as GameObject;
             tileMapParent.transform.position = editorPreferences.initialOffset;
 
             tileMapParent.layer = LayerMask.NameToLayer("YuME_TileMap");
             YuME_mapManagerFunctions.buildNewMap("YuME_MapData");
-            
+
             EditorSceneManager.MarkAllScenesDirty();
         }
 
@@ -429,7 +442,8 @@ public class YuME_mapEditor : EditorWindow
 
         _toolEnabled = toolEnabled;
 
-        openConfig = GUILayout.Toggle(openConfig, editorData.configButton, "Button", GUILayout.Width(30), GUILayout.Height(30));
+        openConfig = GUILayout.Toggle(openConfig, editorData.configButton, "Button", GUILayout.Width(30),
+            GUILayout.Height(30));
 
         if (openConfig == true)
         {
@@ -457,9 +471,9 @@ public class YuME_mapEditor : EditorWindow
             gridLayout,
             2,
             EditorStyles.toolbarButton
-            );
+        );
 
-        if(gridType == 0)
+        if (gridType == 0)
         {
             editorPreferences.twoPointFiveDMode = false;
         }
@@ -476,7 +490,8 @@ public class YuME_mapEditor : EditorWindow
         quantizedGridHeight = gridHeight / globalScale;
         GUILayout.Label("Grid Height: " + quantizedGridHeight.ToString());
 
-        GUILayout.Label("Brush Size: (" + brushSize.x.ToString() + "," + brushSize.y.ToString() + "," + brushSize.z.ToString() + ")");
+        GUILayout.Label("Brush Size: (" + brushSize.x.ToString() + "," + brushSize.y.ToString() + "," +
+                        brushSize.z.ToString() + ")");
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.EndVertical();
 
@@ -506,7 +521,7 @@ public class YuME_mapEditor : EditorWindow
             buttonLabels,
             2,
             EditorStyles.toolbarButton
-            );
+        );
 
         EditorGUILayout.EndVertical();
 
@@ -622,29 +637,31 @@ public class YuME_mapEditor : EditorWindow
                     selectedTool = previousSelectedTool;
                     break;
                 case toolIcons.gridUpTool:
-					if(Event.current.alt)
-					{
-	                    gridHeight+=(globalScale * 0.25f);
-					}
-					else
-					{
-						gridHeight+=globalScale * editorPreferences.gridLayerHeightScaler;
-					}
-					selectedTool = previousSelectedTool;
+                    if (Event.current.alt)
+                    {
+                        gridHeight += (globalScale * 0.25f);
+                    }
+                    else
+                    {
+                        gridHeight += globalScale * editorPreferences.gridLayerHeightScaler;
+                    }
+
+                    selectedTool = previousSelectedTool;
                     break;
                 case toolIcons.gridDownTool:
-					if(Event.current.alt)
-					{
-						gridHeight-=(globalScale * 0.25f);
-					}
-					else
-					{
-						gridHeight-= globalScale * editorPreferences.gridLayerHeightScaler;
-					}
+                    if (Event.current.alt)
+                    {
+                        gridHeight -= (globalScale * 0.25f);
+                    }
+                    else
+                    {
+                        gridHeight -= globalScale * editorPreferences.gridLayerHeightScaler;
+                    }
+
                     selectedTool = previousSelectedTool;
                     break;
                 case toolIcons.rotateTool:
-                    tileRotation+=90f;
+                    tileRotation += 90f;
                     selectedTool = previousSelectedTool;
                     break;
                 case toolIcons.rotateXTool:
@@ -709,14 +726,17 @@ public class YuME_mapEditor : EditorWindow
                                     }
                                     else
                                     {
-                                        if(!oldCustomBrushWarning)
+                                        if (!oldCustomBrushWarning)
                                         {
                                             oldCustomBrushWarning = true;
-                                            Debug.LogWarning("Please note: How custom brushes are created has been updated in YuME 1.1.2 and above. This is an old brush. We recommend recreating this using the new custom brush system for stability.");
-                                            Debug.LogWarning("To increase stability, UNDO has been disabled on OLD custom brushes. New custom brushes use the same system as normal tiles and can be un-done.");
+                                            Debug.LogWarning(
+                                                "Please note: How custom brushes are created has been updated in YuME 1.1.2 and above. This is an old brush. We recommend recreating this using the new custom brush system for stability.");
+                                            Debug.LogWarning(
+                                                "To increase stability, UNDO has been disabled on OLD custom brushes. New custom brushes use the same system as normal tiles and can be un-done.");
                                         }
 
-                                        YuME_customBrushFunctions.pasteCustomBrush(tilePosition); // for legacy custom brushes
+                                        YuME_customBrushFunctions
+                                            .pasteCustomBrush(tilePosition); // for legacy custom brushes
                                     }
 
                                     break;
@@ -724,6 +744,7 @@ public class YuME_mapEditor : EditorWindow
                                     YuME_customBrushFunctions.pasteCopyBrush(tilePosition);
                                     break;
                             }
+
                             break;
                         case toolIcons.pickTool:
                             YuME_tileFunctions.pickTile(tilePosition);
@@ -739,11 +760,11 @@ public class YuME_mapEditor : EditorWindow
                     allowTileRedraw = false;
                 }
                 else if ((Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseDown) &&
-                    Event.current.button == 0 &&
-                    Event.current.alt == false &&
-                    Event.current.shift == true &&
-                    Event.current.control == false &&
-                    allowTileRedraw)
+                         Event.current.button == 0 &&
+                         Event.current.alt == false &&
+                         Event.current.shift == true &&
+                         Event.current.control == false &&
+                         allowTileRedraw)
                 {
                     switch (selectedTool)
                     {
@@ -755,11 +776,11 @@ public class YuME_mapEditor : EditorWindow
                     allowTileRedraw = false;
                 }
                 else if ((Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseDown) &&
-                    Event.current.button == 0 &&
-                    Event.current.alt == false &&
-                    Event.current.shift == false &&
-                    Event.current.control == true &&
-                    allowTileRedraw)
+                         Event.current.button == 0 &&
+                         Event.current.alt == false &&
+                         Event.current.shift == false &&
+                         Event.current.control == true &&
+                         allowTileRedraw)
                 {
                     switch (selectedTool)
                     {
@@ -777,11 +798,11 @@ public class YuME_mapEditor : EditorWindow
                 HandleUtility.AddDefaultControl(controlId);
             }
 
-            if(showGizmos)
+            if (showGizmos)
             {
-                if(selectedTiles.Count > 0)
+                if (selectedTiles.Count > 0)
                 {
-                    foreach(GameObject tile in selectedTiles)
+                    foreach (GameObject tile in selectedTiles)
                     {
                         YuME_sceneGizmoFunctions.handleInfo data;
                         data.tileName = tile.name;
@@ -819,6 +840,7 @@ public class YuME_mapEditor : EditorWindow
                 }
             }
         }
+
         return results;
     }
 
@@ -843,7 +865,7 @@ public class YuME_mapEditor : EditorWindow
 
             for (int i = 0; i < uiObjects.Count; i++)
             {
-                if(uiObjects[i].gameObject == null)
+                if (uiObjects[i].gameObject == null)
                 {
                     findUI();
                     break;
@@ -889,6 +911,7 @@ public class YuME_mapEditor : EditorWindow
             {
                 meshFolder = "Assets/";
             }
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             YuME_freezeMap.saveFrozenMesh(meshFolder);
@@ -912,6 +935,7 @@ public class YuME_mapEditor : EditorWindow
                     }
                 }
             }
+
             YuME_brushFunctions.destroyBrushTile();
             currentBrushType = YuME_mapEditor.brushTypes.standardBrush;
             setTileBrush(0);
@@ -919,7 +943,7 @@ public class YuME_mapEditor : EditorWindow
             toolEnabled = true;
         }
 
-        if(!uiState)
+        if (!uiState)
         {
             showUI(true);
         }
@@ -932,18 +956,21 @@ public class YuME_mapEditor : EditorWindow
 
     public static void cloneMap(GameObject sourceMap)
     {
-        GameObject mainMap = YuME_mapManagerFunctions.buildNewMap(sourceMap.name+" (clone)");
+        GameObject mainMap = YuME_mapManagerFunctions.buildNewMap(sourceMap.name + " (clone)");
         Transform[] cloneLayers = mainMap.GetComponentsInChildren<Transform>();
         int cloneLayerIndex = 1;
 
         foreach (Transform layers in sourceMap.transform)
         {
-            foreach(Transform tiles in layers)
+            foreach (Transform tiles in layers)
             {
 #if UNITY_2018_3_OR_NEWER
-                GameObject clone = (GameObject)PrefabUtility.InstantiatePrefab(PrefabUtility.GetCorrespondingObjectFromSource(tiles.gameObject) as GameObject);
+                GameObject clone =
+                    (GameObject)PrefabUtility.InstantiatePrefab(
+                        PrefabUtility.GetCorrespondingObjectFromSource(tiles.gameObject) as GameObject);
 #else
-                GameObject clone = (GameObject)PrefabUtility.InstantiatePrefab(PrefabUtility.GetPrefabParent(tiles.gameObject) as GameObject);
+                GameObject clone =
+ (GameObject)PrefabUtility.InstantiatePrefab(PrefabUtility.GetPrefabParent(tiles.gameObject) as GameObject);
 #endif
                 if (clone != null)
                 {
@@ -953,6 +980,7 @@ public class YuME_mapEditor : EditorWindow
                     clone.transform.parent = cloneLayers[cloneLayerIndex];
                 }
             }
+
             cloneLayerIndex++;
         }
     }
@@ -1045,7 +1073,7 @@ public class YuME_mapEditor : EditorWindow
 
                         newTilePos.x += globalScale;
                     }
-                        
+
                     newTilePos.z += globalScale;
                 }
             }
@@ -1077,13 +1105,17 @@ public class YuME_mapEditor : EditorWindow
 
             foreach (string guid in guids)
             {
-                YuME_tilesetData tempData = AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guid), typeof(YuME_tilesetData)) as YuME_tilesetData;
+                YuME_tilesetData tempData =
+                    AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guid), typeof(YuME_tilesetData)) as
+                        YuME_tilesetData;
 
                 if (fullRescan)
                 {
-                    EditorUtility.DisplayProgressBar("Reloading Tile Set: " + tempData.name, "Note: Reimport can take some time to complete", 0f);
+                    EditorUtility.DisplayProgressBar("Reloading Tile Set: " + tempData.name,
+                        "Note: Reimport can take some time to complete", 0f);
                     string path = YuTools_Utils.getAssetPath(tempData);
-                    string[] containedPrefabs = YuTools_Utils.getDirectoryContents(YuTools_Utils.getAssetPath(tempData), "*.prefab");
+                    string[] containedPrefabs =
+                        YuTools_Utils.getDirectoryContents(YuTools_Utils.getAssetPath(tempData), "*.prefab");
 
                     if (containedPrefabs != null)
                     {
@@ -1092,10 +1124,13 @@ public class YuME_mapEditor : EditorWindow
                             AssetDatabase.ImportAsset(path + prefab);
                         }
                     }
+
                     if (tempData != null)
                     {
                         path = YuTools_Utils.getAssetPath(tempData) + "CustomBrushes/";
-                        containedPrefabs = YuTools_Utils.getDirectoryContents(YuTools_Utils.getAssetPath(tempData) + "CustomBrushes/", "*.prefab");
+                        containedPrefabs =
+                            YuTools_Utils.getDirectoryContents(YuTools_Utils.getAssetPath(tempData) + "CustomBrushes/",
+                                "*.prefab");
 
                         if (containedPrefabs != null)
                         {
@@ -1122,8 +1157,7 @@ public class YuME_mapEditor : EditorWindow
                 tileSetNames[i] = availableTileSets[i].tileSetName;
             }
 
-			loadPreviewTiles();
-
+            loadPreviewTiles();
         }
         else
         {
@@ -1143,9 +1177,10 @@ public class YuME_mapEditor : EditorWindow
 
             for (int i = 0; i < currentTileSetObjects.Length; i++)
             {
-                if (AssetDatabase.IsValidFolder(path+ currentTileSetObjects[i].name))
+                if (AssetDatabase.IsValidFolder(path + currentTileSetObjects[i].name))
                 {
-                    GameObject[] loadAltTiles = YuTools_Utils.loadDirectoryContents(path + currentTileSetObjects[i].name, "*.prefab");
+                    GameObject[] loadAltTiles =
+                        YuTools_Utils.loadDirectoryContents(path + currentTileSetObjects[i].name, "*.prefab");
 
                     s_AltTiles newAltTiles;
                     newAltTiles.masterTile = currentTileSetObjects[i].name;
@@ -1156,7 +1191,6 @@ public class YuME_mapEditor : EditorWindow
             }
 
             currentTile = currentTileSetObjects[0];
-
         }
         catch
         {
@@ -1200,26 +1234,26 @@ public class YuME_mapEditor : EditorWindow
             {
                 for (int i = 0; i < currentTileSetObjects.Length; i++)
                 {
-                    if(currentTileSetObjects[i] != null)
+                    if (currentTileSetObjects[i] != null)
                     {
                         //if (!currentTileSetObjects[i].name.Contains(userSettings.altIdentifier))
                         //{
-                            EditorGUILayout.BeginVertical();
+                        EditorGUILayout.BeginVertical();
 
-                            drawTileButtons(i);
-                            EditorGUILayout.BeginHorizontal("Box");
-                            EditorGUILayout.LabelField(currentTileSetObjects[i].name, GUILayout.MaxWidth(132));
+                        drawTileButtons(i);
+                        EditorGUILayout.BeginHorizontal("Box");
+                        EditorGUILayout.LabelField(currentTileSetObjects[i].name, GUILayout.MaxWidth(132));
+                        EditorGUILayout.EndHorizontal();
+                        EditorGUILayout.EndVertical();
+
+                        horizontalCounter++;
+
+                        if (horizontalCounter == tilePreviewColumnWidth)
+                        {
+                            horizontalCounter = 0;
                             EditorGUILayout.EndHorizontal();
-                            EditorGUILayout.EndVertical();
-
-                            horizontalCounter++;
-
-                            if (horizontalCounter == tilePreviewColumnWidth)
-                            {
-                                horizontalCounter = 0;
-                                EditorGUILayout.EndHorizontal();
-                                EditorGUILayout.BeginHorizontal();
-                            }
+                            EditorGUILayout.BeginHorizontal();
+                        }
                         //}
                     }
                 }
@@ -1249,7 +1283,7 @@ public class YuME_mapEditor : EditorWindow
 
     static void drawTileButtons(int index)
     {
-        if(currentTileSetObjects[index] != null)
+        if (currentTileSetObjects[index] != null)
         {
             //By passing a Prefab or GameObject into AssetPreview.GetAssetPreview you get a texture that shows this object
             Texture2D previewImage = AssetPreview.GetAssetPreview(currentTileSetObjects[index]);
@@ -1322,13 +1356,15 @@ public class YuME_mapEditor : EditorWindow
 
             if (GUILayout.Button("Delete Brush"))
             {
-                if (EditorUtility.DisplayDialog("Delete Custom Brush?", "Are you sure you want to delete the custom brush prefab from the project", "Delete", "No"))
+                if (EditorUtility.DisplayDialog("Delete Custom Brush?",
+                        "Are you sure you want to delete the custom brush prefab from the project", "Delete", "No"))
                 {
                     string destinationPath = availableTileSets[currentTileSetIndex].customBrushDestinationFolder + "/";
 
                     if (currentCustomBrushes[index].GetComponent<YuME_tileGizmo>())
                     {
-                        List<string> meshesToDelete = currentCustomBrushes[index].GetComponent<YuME_tileGizmo>().customBrushMeshName;
+                        List<string> meshesToDelete = currentCustomBrushes[index].GetComponent<YuME_tileGizmo>()
+                            .customBrushMeshName;
 
                         foreach (string deleteThis in meshesToDelete)
                         {
@@ -1348,7 +1384,7 @@ public class YuME_mapEditor : EditorWindow
     // ----------------------------------------------------------------------------------------------------
     // ----- Make sure the editor aways has the essential scene objects
     // ----------------------------------------------------------------------------------------------------
-    
+
     public static bool findEditorGameObject()
     {
         editorGameObject = GameObject.Find("YuME_MapEditorObject");
@@ -1388,6 +1424,7 @@ public class YuME_mapEditor : EditorWindow
                     i++;
                 }
             }
+
             return true;
         }
         else
@@ -1404,7 +1441,9 @@ public class YuME_mapEditor : EditorWindow
         }
         else
         {
-            if (_gridColorBorder != editorPreferences.gridColorBorder || _gridColorFill != editorPreferences.gridColorFill || _gridColorNormal != editorPreferences.gridColorNormal)
+            if (_gridColorBorder != editorPreferences.gridColorBorder ||
+                _gridColorFill != editorPreferences.gridColorFill ||
+                _gridColorNormal != editorPreferences.gridColorNormal)
             {
                 gridSceneObject.GetComponent<YuME_GizmoGrid>().gridColorNormal = editorPreferences.gridColorNormal;
                 gridSceneObject.GetComponent<YuME_GizmoGrid>().gridColorFill = editorPreferences.gridColorFill;
@@ -1427,8 +1466,8 @@ public class YuME_mapEditor : EditorWindow
         }
         else
         {
-                gridSceneObject.GetComponent<YuME_GizmoGrid>().twoPointFiveDMode = editorPreferences.twoPointFiveDMode;
-                SceneView.RepaintAll();
+            gridSceneObject.GetComponent<YuME_GizmoGrid>().twoPointFiveDMode = editorPreferences.twoPointFiveDMode;
+            SceneView.RepaintAll();
         }
     }
 
@@ -1439,7 +1478,7 @@ public class YuME_mapEditor : EditorWindow
             gridSceneObject = GameObject.Find("YuME_MapEditorObject");
         }
         else
-        { 
+        {
             try
             {
                 gridSceneObject.GetComponent<YuME_GizmoGrid>().tileSize = globalScale;
@@ -1495,14 +1534,22 @@ public class YuME_mapEditor : EditorWindow
 
             if (!editorPreferences.twoPointFiveDMode)
             {
-                tilePosition.x = Mathf.Round(((hit.point.x + shiftOffset.x) - hit.normal.x * 0.001f) / globalScale) * globalScale - shiftOffset.x;
-                tilePosition.z = Mathf.Round(((hit.point.z + shiftOffset.z) - hit.normal.z * 0.001f) / globalScale) * globalScale - shiftOffset.z;
+                tilePosition.x =
+                    Mathf.Round(((hit.point.x + shiftOffset.x) - hit.normal.x * 0.001f) / globalScale) * globalScale -
+                    shiftOffset.x;
+                tilePosition.z =
+                    Mathf.Round(((hit.point.z + shiftOffset.z) - hit.normal.z * 0.001f) / globalScale) * globalScale -
+                    shiftOffset.z;
                 tilePosition.y = gridHeight + gridSceneObject.transform.position.y;
             }
             else
             {
-                tilePosition.x = Mathf.Round(((hit.point.x + shiftOffset.x) - hit.normal.x * 0.001f) / globalScale) * globalScale - shiftOffset.x;
-                tilePosition.y = Mathf.Round(((hit.point.y + shiftOffset.y) - hit.normal.y * 0.001f) / globalScale) * globalScale - shiftOffset.y;
+                tilePosition.x =
+                    Mathf.Round(((hit.point.x + shiftOffset.x) - hit.normal.x * 0.001f) / globalScale) * globalScale -
+                    shiftOffset.x;
+                tilePosition.y =
+                    Mathf.Round(((hit.point.y + shiftOffset.y) - hit.normal.y * 0.001f) / globalScale) * globalScale -
+                    shiftOffset.y;
                 tilePosition.z = gridHeight + gridSceneObject.transform.position.z;
             }
         }
@@ -1525,50 +1572,26 @@ public class YuME_mapEditor : EditorWindow
 
     public static int toolSelect
     {
-        get
-        {
-            return EditorPrefs.GetInt("selectedTool", 0);
-        }
-        set
-        {
-            EditorPrefs.SetInt("selectedTool", value);
-        }
+        get { return EditorPrefs.GetInt("selectedTool", 0); }
+        set { EditorPrefs.SetInt("selectedTool", value); }
     }
 
     public static bool toolEnabled
     {
-        get
-        {
-            return EditorPrefs.GetBool("toolEnabled", true);
-        }
-        set
-        {
-            EditorPrefs.SetBool("toolEnabled", value);
-        }
+        get { return EditorPrefs.GetBool("toolEnabled", true); }
+        set { EditorPrefs.SetBool("toolEnabled", value); }
     }
 
     public static int currentTileSetIndex
     {
-        get
-        {
-            return EditorPrefs.GetInt("currentTileSetIndex", 0);
-        }
-        set
-        {
-            EditorPrefs.SetInt("currentTileSetIndex", value);
-        }
+        get { return EditorPrefs.GetInt("currentTileSetIndex", 0); }
+        set { EditorPrefs.SetInt("currentTileSetIndex", value); }
     }
 
     public static int tilePreviewColumnWidth
     {
-        get
-        {
-            return EditorPrefs.GetInt("tilePreviewColumnWidth", 2);
-        }
-        set
-        {
-            EditorPrefs.SetInt("tilePreviewColumnWidth", value);
-        }
+        get { return EditorPrefs.GetInt("tilePreviewColumnWidth", 2); }
+        set { EditorPrefs.SetInt("tilePreviewColumnWidth", value); }
     }
 
     public static float gridHeight
@@ -1600,15 +1623,12 @@ public class YuME_mapEditor : EditorWindow
 
     public static float gridOffset
     {
-        get
-        {
-            return editorPreferences.gridOffset;
-        }
+        get { return editorPreferences.gridOffset; }
         set
         {
             GameObject gridTemp = GameObject.Find("YuME_MapEditorObject");
             editorPreferences.gridOffset = value;
-            if(gridTemp != null)
+            if (gridTemp != null)
             {
                 gridTemp.GetComponent<YuME_GizmoGrid>().gridOffset = value;
             }
@@ -1617,10 +1637,7 @@ public class YuME_mapEditor : EditorWindow
 
     public static Vector2 gridDimensions
     {
-        get
-        {
-            return editorPreferences.gridDimensions;
-        }
+        get { return editorPreferences.gridDimensions; }
         set
         {
             editorPreferences.gridDimensions = value;
@@ -1644,8 +1661,10 @@ public class YuME_mapEditor : EditorWindow
                     tempGridSize.y = (int)value.y * globalScale;
                     tempGridSize.z = 0.1f;
                 }
+
                 gridTemp.GetComponent<BoxCollider>().size = tempGridSize;
             }
+
             EditorUtility.SetDirty(editorData);
         }
     }
@@ -1659,18 +1678,14 @@ public class YuME_mapEditor : EditorWindow
             else
                 return false;
         }
-
     }
 
-	public static Vector3 brushSize
-	{
-		get
-		{
-			return _brushSize;
-		}
-		set
-		{
-			_brushSize = value;
+    public static Vector3 brushSize
+    {
+        get { return _brushSize; }
+        set
+        {
+            _brushSize = value;
 
             if (_brushSize.x < 1f) _brushSize.x = 1f;
             if (_brushSize.y < 1f) _brushSize.y = 1f;
@@ -1680,10 +1695,7 @@ public class YuME_mapEditor : EditorWindow
 
     public static int currentLayer
     {
-        get
-        {
-            return _currentLayer;
-        }
+        get { return _currentLayer; }
         set
         {
             _currentLayer = value;
@@ -1701,10 +1713,7 @@ public class YuME_mapEditor : EditorWindow
 
     public static float tileRotation
     {
-        get
-        {
-            return _tileRotation;
-        }
+        get { return _tileRotation; }
         set
         {
             _tileRotation = value;
@@ -1717,16 +1726,12 @@ public class YuME_mapEditor : EditorWindow
             {
                 _tileRotation = 270f;
             }
-
         }
     }
 
     public static float tileRotationX
     {
-        get
-        {
-            return _tileRotationX;
-        }
+        get { return _tileRotationX; }
         set
         {
             _tileRotationX = value;
@@ -1739,7 +1744,6 @@ public class YuME_mapEditor : EditorWindow
             {
                 _tileRotationX = 270f;
             }
-
         }
     }
 

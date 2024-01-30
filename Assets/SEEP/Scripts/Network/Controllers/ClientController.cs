@@ -61,7 +61,7 @@ namespace SEEP.Network
         private void OnClientConnected()
         {
             ChangeNickname(Environment.UserName);
-            InstanceFinder.GameManager.RegisterPlayer(this);
+            InstanceFinder.GameManager.RegisterClient(this);
         }
 
         private void OnChangeNickname(string prevName, string nextName, bool asServer)
@@ -103,6 +103,7 @@ namespace SEEP.Network
         private void RpcRegisterDrone(NetworkConnection conn, GameObject drone)
         {
             _droneController = drone.GetComponent<DroneController>();
+            InstanceFinder.GameManager.RegisterDrone(_droneController);
         }
 
         #endregion
