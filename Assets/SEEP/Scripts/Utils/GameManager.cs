@@ -32,11 +32,22 @@ namespace SEEP.Utils
 
         private DroneController _droneController;
 
+        private bool _isOnline;
+
         private void Start()
         {
 #if DEBUG
             AddDevCommands();
 #endif
+            var networkController = InstanceFinder.NetworkController;
+            if (networkController == null)
+            {
+                Logger.Log(LoggerChannel.GameManager, Priority.Warning, "NetworkController not found. GameManager will work in offline mode");
+                _isOnline = false;
+                return;
+            }
+
+            _isOnline = true;
             InstanceFinder.NetworkController.OnClientConnected += OnClientConnected;
             InstanceFinder.NetworkController.OnClientDisconnected += OnClientDisconnected;
             InstanceFinder.NetworkController.OnHostStarted += OnHostStarted;
@@ -67,6 +78,8 @@ namespace SEEP.Utils
 
         public void RegisterDrone(DroneController droneController)
         {
+            if (!CheckOnline()) return;
+            
             if (droneController == null) return;
             _droneController = droneController;
             onLocalDroneSpawned.Invoke();
@@ -74,9 +87,24 @@ namespace SEEP.Utils
 
         public void RegisterClient(ClientController clientController)
         {
+            if (!CheckOnline()) return;
+
             if (clientController == null) return;
             _clientController = clientController;
             onLocalPlayerSpawned.Invoke();
+        }
+
+        public void ShowCursor(bool visible, CursorLockMode lockMode)
+        {
+            Cursor.lockState = lockMode;
+            Cursor.visible = visible;
+        }
+
+        private bool CheckOnline()
+        {
+            if (!_isOnline)
+                Logger.Log(LoggerChannel.GameManager, Priority.Warning, "Can't call network method, when GameManager is offline");
+            return _isOnline;
         }
 
 #if DEBUG

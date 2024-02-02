@@ -8,6 +8,7 @@ using FishNet.Transporting;
 using SEEP.Network.Controllers;
 using SEEP.Utils;
 using UnityEngine;
+using Channel = FishNet.Transporting.Channel;
 using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.Network
@@ -22,6 +23,17 @@ namespace SEEP.Network
         [field: SyncVar(ReadPermissions = ReadPermission.Observers, WritePermissions = WritePermission.ServerOnly,
             OnChange = nameof(OnChangeNickname), Channel = Channel.Reliable)]
         public string Nickname { get; private set; }
+
+        [field: SyncVar(ReadPermissions = ReadPermission.Observers, WritePermissions = WritePermission.ServerOnly,
+            OnChange = nameof(OnChangeRole))]
+        public ClientRole Role { get; private set; }
+
+        public enum ClientRole
+        {
+            None,
+            Hacker,
+            Engineer
+        }
 
         #endregion
 
@@ -60,14 +72,31 @@ namespace SEEP.Network
 
         private void OnClientConnected()
         {
-            ChangeNickname(Environment.UserName);
+            CmdRegisterClient(Environment.UserName);
+            //ChangeNickname(Environment.UserName);
             InstanceFinder.GameManager.RegisterClient(this);
         }
 
         private void OnChangeNickname(string prevName, string nextName, bool asServer)
         {
             if (!asServer) return;
-            Logger.Log(this, $"{this} changed nick from {prevName} to {nextName}");
+            Logger.Log(LoggerChannel.ClientController, Priority.Error, $"{this} changed nick from {prevName} to {nextName}");
+        }
+
+        private void OnChangeRole(ClientRole prevRole, ClientRole newRole, bool asServer)
+        {
+            if (asServer)
+            {
+                if(newRole == ClientRole.Engineer)
+                    RequestToSpawnObject(dronePrefab, new Vector3(0, 1, 0));
+                if (newRole == ClientRole.Hacker)
+                {
+                    
+                }
+            }
+            
+            if (!asServer) return;
+            Logger.Log(LoggerChannel.ClientController, Priority.Error, $"{this} changed role from {prevRole} to {newRole}");
         }
 
         #endregion
@@ -88,6 +117,19 @@ namespace SEEP.Network
         private void CmdChangeNickname(string newNickname)
         {
             Nickname = newNickname;
+        }
+
+        [ServerRpc]
+        private void CmdRegisterClient(string nickname)
+        {
+            CmdChangeNickname(nickname);
+            InstanceFinder.LobbyManager.RegisterPlayer(this);
+        }
+
+        [Server]
+        public void SetRole(ClientRole newRole)
+        {
+            Role = newRole;
         }
 
         [ServerRpc]
@@ -119,7 +161,8 @@ namespace SEEP.Network
 
         public void ConsoleSpawnDrone()
         {
-            RequestToSpawnObject(dronePrefab, new Vector3(0, 1, 0));
+            Logger.Log(LoggerChannel.ClientController, Priority.Warning,"Currently ConsoleSpawnDrone not used!");
+            //RequestToSpawnObject(dronePrefab, new Vector3(0, 1, 0));
         }
 
         public void ConsoleSpawnCube()

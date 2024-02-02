@@ -5,33 +5,32 @@ using UnityEngine;
 
 namespace SEEP.Utils
 {
+    [RequireComponent(typeof(CinemachineInputProvider))]
     public class CinemachineUtils : MonoBehaviour
     {
         private CinemachineInputProvider _inputProvider;
-        private CinemachineFreeLook _camera;
+        private CinemachineVirtualCameraBase _camera;
+
+        private bool _isInitialized;
 
         private void Awake()
         {
             _inputProvider = GetComponent<CinemachineInputProvider>();
-            _camera = GetComponent<CinemachineFreeLook>();
-            InstanceFinder.NetworkController.OnClientDisconnected += () =>
+            if (!TryGetComponent(out _camera))
             {
-                if (_camera == null) return;
-                _camera.enabled = false;
-                _camera.Follow = null;
-                _camera.LookAt = null;
-            };
+                Logger.Log(LoggerChannel.CameraManager, Priority.Error, $"Can't initialize {GetType()}, because on {gameObject.name} can't find any " +
+                                                                  $"component inherited from CinemachineVirtualCameraBase. Maybe you forgot?");
+                _isInitialized = false;
+                return;
+            }
+            
+            //if(InstanceFinder)
+
+            _isInitialized = true;
         }
 
         private void Update()
         {
-            var inputEnabled = _inputProvider.enabled;
-            _inputProvider.enabled = DevConsole.IsOpen switch
-            {
-                true when inputEnabled => false,
-                false when !inputEnabled => true,
-                _ => inputEnabled
-            };
         }
 
         public void OnDroneSpawned()
@@ -41,5 +40,13 @@ namespace SEEP.Utils
             _camera.Follow = visualChild;
             _camera.LookAt = visualChild;
         }
+    }
+
+    public enum CameraType
+    {
+        None,
+        DroneCamera,
+        HackerCamera,
+        MonitorCamera
     }
 }

@@ -6,6 +6,7 @@ using FishNet.Object;
 using SEEP.InputHandlers;
 using SEEP.Offline;
 using SEEP.Offline.Interfaces;
+using SEEP.Utils;
 using TMPro;
 using UnityEngine;
 using SEEP.Utils.Typewriter;
@@ -151,7 +152,7 @@ namespace SEEP.Network.Controllers
                     ChangeVisibility(false);
                     break;
                 default:
-                    Logger.Error(this, "Unexpected interactable type");
+                    Logger.Log(LoggerChannel.InteractableSystem, Priority.Error, "Unexpected interactable type");
                     break;
             }
         }

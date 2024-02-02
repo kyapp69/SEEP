@@ -1,3 +1,4 @@
+using SEEP.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Logger = SEEP.Utils.Logger;
@@ -64,8 +65,7 @@ namespace SEEP.InputHandlers
 
             if (_input.currentActionMap == null)
             {
-                Logger.Warning(this,
-                    "Action map doesn't assigned to player input. Vehicle input initialization will be stopped");
+                Logger.Log(LoggerChannel.Input, Priority.Error, "Action map doesn't assigned to player input. Input initialization will be stopped");
                 return;
             }
 

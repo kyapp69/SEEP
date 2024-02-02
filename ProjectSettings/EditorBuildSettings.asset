@@ -8,6 +8,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/SEEP/Scenes/DevScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/SEEP/Scenes/HackerScene.unity
+    guid: 2fba77e91a97a652c812a46ee014ffa1
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: a7e666af52ee9304f9c007cfc7f2e8e0,
       type: 2}

@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/SEEP/UI/SeepStyle.uss?fileID=7433441132597879392&amp;guid=f0ccbce39dc80c8b98837197e04568bf&amp;type=3#SeepStyle" />
+    <ui:VisualElement class="background" style="flex-grow: 1;">
+        <ui:Button text="Button" />
+        <ui:Button text="Button" />
+        <ui:Button text="Button" />
+        <ui:Button text="Button" />
+        <ui:VisualElement name="Pointer" style="flex-grow: 0; background-image: url(&apos;project://database/Assets/Yuponic/YuME/Icons/iconCursor.png?fileID=2800000&amp;guid=18c57bf2f903cec48806ea0036eccff7&amp;type=3#iconCursor&apos;); -unity-background-scale-mode: scale-to-fit; position: absolute; width: 1%; height: 2%; flex-shrink: 0; opacity: 0;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using SEEP.Utils;
 using Logger = SEEP.Utils.Logger;
 
 namespace SEEP.InputHandlers
@@ -25,11 +26,10 @@ namespace SEEP.InputHandlers
         private void Start()
         {
             _input = GetComponent<PlayerInput>();
-            
+
             if (_input.currentActionMap == null)
             {
-                Logger.Warning(this,
-                    "Action map doesn't assigned to player input. Vehicle input initialization will be stopped");
+                Logger.Log(LoggerChannel.Input, Priority.Error, "Action map doesn't assigned to player input. Vehicle input initialization will be stopped");
                 return;
             }
 
@@ -37,7 +37,7 @@ namespace SEEP.InputHandlers
             _controlAction = _inputMap.FindAction("Movement");
             _heightAction = _inputMap.FindAction("HeightControl");
             _yawAction = _inputMap.FindAction("Yaw");
-            
+
             _controlAction.performed += ControlAction;
             _controlAction.canceled += ControlAction;
             _heightAction.performed += HeightAction;
@@ -62,4 +62,3 @@ namespace SEEP.InputHandlers
         }
     }
 }
-

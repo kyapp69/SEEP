@@ -14,7 +14,7 @@ namespace SEEP.Utils
 
         private static NetworkController _networkController;
 
-        private static CameraUtils _cameraUtils;
+        private static CinemachineUtils _cinemachineUtils;
 
         #endregion
 
@@ -46,7 +46,7 @@ namespace SEEP.Utils
             outVar = FindFirstObjectByType<T>();
             if (outVar)
                 return outVar;
-            Logger.Warning("InstanceFinder", $"{typeof(T)} not founded on the scene");
+            Logger.Log(LoggerChannel.Common, Priority.Warning, $"{typeof(T)} not founded on the scene");
             return null;
         }
     }

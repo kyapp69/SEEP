@@ -5,6 +5,7 @@ using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using FishNet.Transporting;
+using SEEP.Utils;
 using UnityEngine;
 using Logger = SEEP.Utils.Logger;
 
@@ -46,7 +47,7 @@ namespace SEEP.Network
         {
             _cachedClients = Array.Empty<ClientController>();
             _clients.OnChange += OnClientsUpdate;
-            if(IsServer)
+            if (IsServer)
                 Initialize();
         }
 
@@ -76,10 +77,19 @@ namespace SEEP.Network
 
         #region METHODS
 
+        public void RegisterPlayer(ClientController clientController)
+        {
+            //Yeah, there some shit))
+            clientController.SetRole(clientController.IsHost
+                ? ClientController.ClientRole.Engineer
+                : ClientController.ClientRole.Hacker);
+        }
+
         #endregion
 
         #region EVENTS
 
+        // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
         /// Called when SyncList of clients are updated from server
         /// </summary>
@@ -93,14 +103,16 @@ namespace SEEP.Network
             switch (op)
             {
                 case SyncListOperation.Add:
-                    Logger.Log(this, $"User connected. Update list...");
+                    Logger.Log(LoggerChannel.LobbyManager, Priority.Info,
+                        $"User {newItem.Nickname} connected. Update list...");
                     break;
                 case SyncListOperation.Insert:
                     break;
                 case SyncListOperation.Set:
                     break;
                 case SyncListOperation.RemoveAt:
-                    Logger.Log(this, $"User disconnected. Update list...");
+                    Logger.Log(LoggerChannel.LobbyManager, Priority.Info,
+                        $"User {oldItem.Nickname} disconnected. Update list...");
                     break;
                 case SyncListOperation.Clear:
                     break;
@@ -143,7 +155,6 @@ namespace SEEP.Network
 
         public override void OnStopNetwork()
         {
-            
         }
 
         /// <summary>
@@ -159,7 +170,8 @@ namespace SEEP.Network
                 _clients.Add(newClient);
             }
             else
-                Logger.Warning(this, "RegisterClient called, by client doesn't found.");
+                Logger.Log(LoggerChannel.LobbyManager, Priority.Error,
+                    "RegisterClient called, by client doesn't found.");
         }
 
         #endregion

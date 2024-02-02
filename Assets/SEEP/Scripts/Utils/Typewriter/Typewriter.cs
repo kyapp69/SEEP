@@ -50,7 +50,7 @@ namespace SEEP.Utils.Typewriter
         {
             if (_targetTextMesh == null)
             {
-                Logger.Warning(this, "Target text mesh not set. Animator can't work");
+                Logger.Log(LoggerChannel.UI, Priority.Info, "Target text mesh not set. Animator can't work");
             }
 
             foreach (var typingNotifiable in typingNotifiables)

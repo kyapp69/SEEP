@@ -125,7 +125,6 @@ public class DeveloperUIHandler : MonoBehaviour
 
     private void OnSpawnDroneClicked(ClickEvent evt)
     {
-        Logger.Log(this, $"{InstanceFinder.GameManager}");
         InstanceFinder.GameManager.LocalClient.ConsoleSpawnDrone();
     }
 
